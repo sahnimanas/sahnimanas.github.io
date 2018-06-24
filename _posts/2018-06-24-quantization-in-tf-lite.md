@@ -14,6 +14,8 @@ As Francois Chollet concisely puts it, we're currently starting with the “make
 {: style="text-align: justify"}
 
 
+<sub>_**TL;DR just tell me how to quantize my model**_: Here's a [tutorial][tf_tutorial] from TensorFlow with code</sub>
+
 What is low-precision? 
 -----------------------
 Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we're trying to work with a number line looking closer to the one on the right. The numbers are quantized, i.e. discretized to some specific values. To be more precise (no pun), we use 8-bit fixed-point representation, which we'll get back to in a while.
@@ -140,6 +142,11 @@ conventional neural network to the quantized form, which is where TensorFlow's �
 All this information is then taken by TF-Lite's TOCO (TensorFlow Optimizing COnverter) tool which – apart from other optimizations – performs the actual conversion to quantized values and specifies how to use them in inference by TF-Lite's kernels on mobile devices. 
 {: style="text-align: justify"}
 
+The chart below shows the accuracy-latency tradeoff for various MobileNet models for ImageNet classification in quantized and float inference modes. For most part, the whole quantization pipeline works well and only suffers from very minor losses in accuracy. An interesting area to explore further is how this loss can be also be recovered via retraining.
+
+![accuracy]
+*<sub>Source: [Benoit et al][gemmlowp_paper]</sub>*
+
 ## What's next
 Most of the processes described here are specific to how quantization is done in TensorFlow Lite, which only deals with quantized inference with a model trained using good old single precision. Even for inference, it just happens to be one of many options and it remains to be seen if other approaches might work better. What is certain is that the benefits offered by quantization today on mobile devices are real, and perhaps beyond mobile devices in the future; and hence the field is seeing increasing interest from all sorts of stakeholders. There are all kinds of other results with quantized training, non-linear quantization, binary quantization, networks without multipliers… it's a growing list, which I hope to cover soon.
 {: style="text-align: justify"}
@@ -161,6 +168,7 @@ Most of the processes described here are specific to how quantization is done in
 [deep_compression]: https://arxiv.org/abs/1510.00149
 
 [fp_hard_rant]: https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+[tf_tutorial]: https://www.tensorflow.org/performance/quantization
 
 [floatfixed]: {{site.baseurl}}/assets/img/quantization/floatfixed.png 
 [layer]: {{site.baseurl}}/assets/img/quantization/layer.png
@@ -172,3 +180,4 @@ Most of the processes described here are specific to how quantization is done in
 {: width="40%"}
 [numberline]: {{site.baseurl}}/assets/img/quantization/numberline.png
 [densesparse]: {{site.baseurl}}/assets/img/quantization/densesparse.png
+[accuracy]: {{site.baseurl}}/assets/img/quantization/accuracy.png
