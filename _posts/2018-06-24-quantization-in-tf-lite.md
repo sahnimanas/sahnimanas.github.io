@@ -3,7 +3,7 @@ layout: post
 title: Making Neural Nets Work With Low Precision
 tags: [quantization, tf-lite]
 ---
-### Quantized Neural Networks & TensorFlow-Lite
+### Quantized Neural Networks and TensorFlow-Lite
 {: style="text-align: center"}
 
 <br /> 
