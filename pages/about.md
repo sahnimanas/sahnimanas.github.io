@@ -5,8 +5,7 @@ permalink: /about/
 feature-img: "assets/img/pexels/circuit.jpeg"
 ---
 
-![manas]({{site.baseurl}}/assets/img/manas.jpg)
-{:style="text-align:center"}
+<center><img src="{{site.baseurl}}/assets/img/manas.jpg" width="50%"></center>
 
 ## Manas Sahni
 {:style="text-align:center"}
