@@ -1,9 +1,11 @@
 ---
 layout: post
 title: Making Neural Nets Work With Low Precision
+feature-img: "assets/img/quantization/pacman.jpg"
+thumbnail: "assets/img/quantization/pacman.jpg"
 tags: [quantization, tf-lite]
 ---
-### Quantized Neural Networks and TensorFlow-Lite
+### 8-Bit Quantization and TensorFlow-Lite
 {: style="text-align: center"}
 
 <br /> 

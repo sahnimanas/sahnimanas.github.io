@@ -2,7 +2,7 @@
 baseurl: ""
 url: "https://sahnimanas.github.io"
 title: efficieNN | sahnimanas.github.io # site's title
-description: "efficieNN | sahnimanas.github.io : A blog on mobile-optimized AI"
+description: "The blog on efficint mobile-optimized AI"
 
 
 # THEME-SPECIFIC CONFIGURATION
@@ -14,9 +14,9 @@ theme_settings:
   gravatar: # Email MD5 hash
 
   # Header and footer text
-  header_text: >
-    
-  header_text_feature_image: assets/img/pexels/triangular.jpeg # TODO
+  #header_text: >
+  #  
+  #header_text_feature_image: assets/img/pexels/triangular.jpeg # TODO
   footer_text: >
    Powered by <a href="https://jekyllrb.com/">Jekyll</a> with <a href="https://github.com/sylhare/Type-on-Strap">Type on Strap</a>
 
