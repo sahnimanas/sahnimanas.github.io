@@ -14,9 +14,8 @@ theme_settings:
   gravatar: # Email MD5 hash
 
   # Header and footer text
-  #header_text: >
-  #  
-  #header_text_feature_image: assets/img/pexels/triangular.jpeg # TODO
+  header_text: "efficieNN: a dive into how we're learning to run AI in the palm of our hands"
+  header_text_feature_image: assets/img/cover.png # TODO
   footer_text: >
    Powered by <a href="https://jekyllrb.com/">Jekyll</a> with <a href="https://github.com/sylhare/Type-on-Strap">Type on Strap</a>
 
