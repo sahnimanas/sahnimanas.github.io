@@ -20,9 +20,10 @@ As Francois Chollet concisely puts it, we're currently starting with the “make
 
 What is low-precision? 
 -----------------------
-Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we're trying to work with a number line looking closer to the one on the right. The numbers are quantized, i.e. discretized to some specific values. To be more precise (no pun), we use 8-bit fixed-point representation, which we'll get back to in a while.
+Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we're trying to work with a number line looking closer to the sparse one on the bottom. The numbers are quantized, i.e. discretized to some specific values. To be more precise (no pun), we use 8-bit fixed-point representation, which we'll get back to in a while.
 {: style="text-align: justify"}
 
+![densesparse]
 
 Why do we care? 
 -------------------

@@ -2,7 +2,7 @@
 layout: page
 title: About
 permalink: /about/
-feature-img: "assets/img/pexels/circuit.jpeg"
+feature-img: "assets/img/about.png"
 ---
 
 <center><img src="{{site.baseurl}}/assets/img/manas.jpg" width="50%"></center>
