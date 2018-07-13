@@ -1,18 +1,19 @@
 ---
 layout: post
 title: Making Neural Nets Work With Low Precision
-feature-img: "assets/img/quantization/pacman.jpg"
 thumbnail: "assets/img/quantization/pacman.jpg"
+feature-img: "assets/img/quantization/cover.png"
 tags: [quantization, tf-lite]
 ---
 ### 8-Bit Quantization and TensorFlow-Lite
 {: style="text-align: center"}
 
 <br />
+Francois Chollet puts it concisely:
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">- make it possible<br>- make it work<br>- make it efficient<br>- make it dependable and invisible<br>- move on to the next layer and never think about it again</p>&mdash; François Chollet (@fchollet) <a href="https://twitter.com/fchollet/status/985607164461907968?ref_src=twsrc%5Etfw">April 15, 2018</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-As Francois Chollet concisely puts it, we're currently starting with the “make it efficient” stage in deep learning. We had been stuck at the first two stages for many decades where speed and efficiency weren't nearly as important as getting things to work in the first place. So, the question of how precise our calculations need to be – and whether we can manage with lower precision – wasn't often asked. However, now that neural networks are good enough at many problems to be of production-grade or better, this question has risen again. And the answers suggest we could do with low(er) precision, causing what may soon be a paradigm shift in mobile-optimized AI. This post talks about the concept of quantized inference, and how it works in [TensorFlow-Lite][https://www.tensorflow.org/mobile/tflite/].
+For many deep learning problems, we're finally starting with the “make it efficient” stage. We had been stuck at the first two stages for many decades where speed and efficiency weren't nearly as important as getting things to work in the first place. So, the question of how precise our calculations need to be – and whether we can manage with lower precision – wasn't often asked. However, now that neural networks are good enough at many problems to be of production-grade or better, this question has risen again. And the answers suggest we could do with low(er) precision, causing what may soon be a paradigm shift in mobile-optimized AI. This post talks about the concept of quantized inference, and how it works in [TensorFlow-Lite][tf-lite].
 {: style="text-align: justify"}
 
 
@@ -20,32 +21,39 @@ As Francois Chollet concisely puts it, we're currently starting with the “make
 
 What is low-precision?
 -----------------------
-Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we're trying to work with a number line looking closer to the sparse one on the bottom. The numbers are quantized, i.e. discretized to some specific values. To be more precise (no pun), we use 8-bit fixed-point representation, which we'll get back to in a while.
+Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we're trying to work with a number line looking closer to the sparse one on the bottom. The numbers are quantized, i.e. discretized to some specific values, which we can then represent using integers instead of floating-point numbers. To be more precise (no pun), we'll use 8-bit fixed-point representation, which I'll get back to in a while.
 {: style="text-align: justify"}
 
 ![densesparse]
 
 Why do we care?
 -------------------
-Supporting inference with quantized types in any ML framework would require us to rework significant parts of the library's design, as well as implementations of most layers. Yet, there are several reasons that make the gains worth this effort:
+Supporting inference with quantized types in any ML framework like Caffe, TensorFlow, etc. would require us to rework significant parts of the library's design, as well as re-implement most layers. Yet, there are several reasons that make the gains worth this effort:
 
  * Arithmetic with lower bit-depth is faster, assuming the hardware supports it. Even though floating-point computation is no longer “slower” than integer on modern CPUs, operations with 32-bit floating point will almost always be slower than, say, 8-bit integers.
  * In moving from 32-bits to 8-bits, we get (almost) 4x reduction in memory straightaway. Lighter deployment models mean they hog lesser storage space, are easier to share over smaller bandwidths, easier to update, etc.
  * Lower bit-widths also mean that we can squeeze more data in the same caches/registers. This means we can reduce how often we access things from RAM, which is usually consumes a lot of time and power.
- * Floating point arithmetic is [hard][fp_hard_rant] – which is why it may not always be supported on microcontrollers on smaller embedded devices, such as drones, watches, or IoT devices. Integer support, on the other hand, is readily available.  
+ * Floating point arithmetic is [hard][fp_hard_rant] – which is why it may not always be supported on microcontrollers on some ultra low-power embedded devices, such as drones, watches, or IoT devices. Integer support, on the other hand, is readily available.  
 
 
-You can see why all of this sounds like great news for someone interested in deep learning applications on mobiles or embedded devices. Deep learning researchers are now finding ways to train models that work better with quantization, ML library developers are building extensive framework support for quantized inference, and tech giants are throwing their weight behind [dedicated hardware for AI][ai_chip_general] with emphasis on quantization support ([Google][google_tpu], [Huawei][kirin970], [Microsoft][ms_chip], [Facebook][fb_chip], [Apple][iphone_neural_engine]… ). Even without such dedicated hardware, DSP chip on modern smartphone chipsets have instruction sets well-suited for this kind of integer computation.
+You can see why all of this sounds like great news for someone interested in deep learning applications on mobiles or embedded devices. Deep learning researchers are now finding ways to train models that work better with quantization, ML library developers are building extensive framework support for quantized inference, and tech giants are throwing their weight behind [dedicated hardware for AI][ai_chip_general] with emphasis on quantization support ([Google][google_tpu], [Huawei][kirin970], [Microsoft][ms_chip], [Facebook][fb_chip], [Apple][iphone_neural_engine]… ). Even without such dedicated hardware, DSP chips on modern smartphone chipsets have instruction sets well-suited for this kind of integer computation.
 {: style="text-align: justify"}
 
 Why does it work?  
-----------------------
+---------------------
 There has been an increasing amount of work in quantizing neural networks, and they broadly point to two reasons. First, DNNs are known to be quite robust to noise and other small perturbations once trained. This means even if we subtly round-off numbers, we can still expect a reasonably accurate answer. Moreover, the weights and activations by a particular layer often tend to lie in a small range, which can be estimated beforehand. This means we don't need the ability to store 10<sup>6</sup> and 10<sup>-6</sup> in the same data type - allowing us to concentrate our precicious fewer bits within a smaller range, say -3 to +3. As you may imagine, it'll be crucial to accurately know this smaller range - a recurring theme you'll see below. 
 {: style="text-align: justify"}
 
 So, if done right, quantization only causes a small loss of precision which usually doesn't change the output significantly. Finally, small losses in accuracy can be recovered by retraining our models to adjust to quantization.
+{: style="text-align: justify"}
 
-Why not train in lower precision directly, you ask? Well, it's not impossible but we're yet to iron out many kinks. Models are trained using very tiny gradient updates, for which we _do_ need high precision. However, there have been a plethora of experiments with quantization -- we have seen results with quantization in training [[1][wage], [2][courbariaux], [3][dl_with_limited_precision]], or with more intricate methods that use variable-precision, methods that replace multiplications with [bit-wise ops][xnor], [ternary][ternary] or even [binary weights][binary]! However, many of them have been restricted to experimental studies, or still have ways to go from being widely applicable. For the remainder of this post, I'll be talking about the more common 8-bit fixed point quantization in TensorFlow Lite, as described in [this paper][gemmlowp_paper].
+You can see an example below of the weights in a layer from AlexNet, with a histogram of actual weights on the left. Notice how most values lie in a small range. We can quantize, i.e. _discretize_ the range to only record some of these values accurately, and round-off the rest. The right sub-graph shows one such quantization using 4-bits (16 discrete values). You can see how we can improve this with a less stringent bit-length of say, 8-bits.
+{: style="text-align: justify"}
+
+![weights_quant]
+_<sub>Source: [Han et al](#deep_compression)</sub>_
+
+Why not train in lower precision directly, you ask? Well, it's not impossible but we're yet to iron out many kinks. Models are trained using very tiny gradient updates, for which we _do_ need high precision. However, there have been a plethora of experiments with quantization -- we have seen results with quantization in training ([1](#wage), [2](#courbariaux), [3](#dl_with_limited_precision)), or with more intricate methods that use variable-precision, methods that replace multiplications with [bit-wise ops](#xnor), [ternary](#ternary) or even [binary weights](#binary)! However, many of them have been restricted to experimental studies, or still have ways to go from being widely applicable. For the remainder of this post, I'll be talking about the more common task of inference using 8-bit fixed point quantization in TensorFlow Lite, as described in [this paper](#gemmlowp_paper).
 {: style="text-align: justify"}
 
 ***
@@ -63,7 +71,7 @@ If we replace the exponent by a fixed scaling factor, we can use integers to rep
 {: style="text-align: justify"}
 
 ![floatfixed]
-_<sub>Source: [Courbariaux et al][courbariaux]</sub>_
+_<sub>Source: [Courbariaux et al](#courbariaux)</sub>_
 
 
 ## Quantization Scheme
@@ -141,7 +149,7 @@ conventional neural network to the quantized form, which is where TensorFlow's �
 ![simple]
 ![simple_quantized]
 
-*<sub>Source: [Benoit et al][gemmlowp_paper]</sub>*
+*<sub>Source: [Benoit et al](#gemmlowp_paper)</sub>*
 
    
 All this information is then taken by TF-Lite's TOCO (TensorFlow Optimizing COnverter) tool which – apart from other optimizations – performs the actual conversion to quantized values and specifies how to use them in inference by TF-Lite's kernels on mobile devices. 
@@ -150,7 +158,7 @@ All this information is then taken by TF-Lite's TOCO (TensorFlow Optimizing COnv
 The chart below shows the accuracy-latency tradeoff for various MobileNet models for ImageNet classification in quantized and float inference modes. For most part, the whole quantization pipeline works well and only suffers from very minor losses in accuracy. An interesting area to explore further is how this loss can be also be recovered via retraining.
 
 ![accuracy]
-<br><sub>Accuracy-latency tradeoff with MobileNets. Source: [Benoit et al][gemmlowp_paper]</sub>
+<br><sub>Accuracy-latency tradeoff with MobileNets. Source: [Benoit et al](#gemmlowp_paper)</sub>
 
 ## What's next
 Most of the processes described here are specific to how quantization is done in TensorFlow Lite, which only deals with quantized inference with a model trained using good old single precision. Even for inference, it just happens to be one of many options and it remains to be seen if other approaches might work better. What is certain is that the benefits offered by quantization today on mobile devices are real, and perhaps beyond mobile devices in the future; and hence the field is seeing increasing interest from all sorts of stakeholders. There are all kinds of other results with quantized training, non-linear quantization, binary quantization, networks without multipliers… it's a growing list, which I hope to cover soon.
@@ -159,16 +167,26 @@ Most of the processes described here are specific to how quantization is done in
 <hr>
 <br><br><br>
 ### Further Reading
+<a name="warden"></a>
 1. Pete Warden's blog posts on quantization: [1][pete_warden_why8], [2][pete_warden_how], [3][pete_warden_learned]
+<a name="gemmlowp_paper"></a>
 2. Jacob, Benoit, et al. ["Quantization and training of neural networks for efficient integer-arithmetic-only inference."][gemmlowp_paper] arXiv preprint arXiv:1712.05877 (2017).
+<a name="dl_with_limited_precision"></a>
 3. Gupta, Suyog, et al. ["Deep learning with limited numerical precision."][dl_with_limited_precision] International Conference on Machine Learning. 2015.
+<a name="courbariaux"></a>
 4. Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. ["Training deep neural networks with low precision multiplications."][courbariaux] arXiv preprint arXiv:1412.7024 (2014).
+<a name="ternary"></a>
 5. Zhu, Chenzhuo, et al. ["Trained ternary quantization."][ternary] arXiv preprint arXiv:1612.01064 (2016).
+<a name="wage"></a>
 6. Wu, Shuang, et al. ["Training and inference with integers in deep neural networks."][wage] arXiv preprint arXiv:1802.04680 (2018).
+<a name="deep_compression"></a>
 7. Han, Song, Huizi Mao, and William J. Dally. ["Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding."][deep_compression] arXiv preprint arXiv:1510.00149 (2015).
+<a name="binary"></a>
 8. Courbariaux, Matthieu, et al. ["Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1."][binary] arXiv preprint arXiv:1602.02830 (2016).
+<a name="xnor"></a>
 9. Rastegari, Mohammad, et al. ["Xnor-net: Imagenet classification using binary convolutional neural networks."][xnor]European Conference on Computer Vision. Springer, Cham, 2016.
 
+[tf-lite]: https://www.tensorflow.org/mobile/tflite/
 [ai_chip_general]: https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm
 [iphone_neural_engine]: https://www.theverge.com/2017/9/13/16300464/apple-iphone-x-ai-neural-engine
 [kirin970]: https://www.androidauthority.com/huawei-announces-kirin-970-797788/
@@ -192,6 +210,7 @@ Most of the processes described here are specific to how quantization is done in
 [fp_hard_rant]: https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 [tf_tutorial]: https://www.tensorflow.org/performance/quantization
 
+[weights_quant]: {{site.baseurl}}/assets/img/quantization/weights_quant.png
 [floatfixed]: {{site.baseurl}}/assets/img/quantization/floatfixed.png 
 [layer]: {{site.baseurl}}/assets/img/quantization/layer.png
 {: width="1400px"}
