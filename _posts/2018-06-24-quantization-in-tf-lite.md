@@ -167,24 +167,33 @@ Most of the processes described here are specific to how quantization is done in
 <hr>
 <br><br><br>
 ### Further Reading
+
+#### Quantization in TF-Lite
 <a name="warden"></a>
-1. Pete Warden's blog posts on quantization: [1][pete_warden_why8], [2][pete_warden_how], [3][pete_warden_learned]
+* Pete Warden's blog posts on quantization: [1][pete_warden_why8], [2][pete_warden_how], [3][pete_warden_learned]
 <a name="gemmlowp_paper"></a>
-2. Jacob, Benoit, et al. ["Quantization and training of neural networks for efficient integer-arithmetic-only inference."][gemmlowp_paper] arXiv preprint arXiv:1712.05877 (2017).
+* Jacob, Benoit, et al. ["Quantization and training of neural networks for efficient integer-arithmetic-only inference."][gemmlowp_paper] arXiv preprint arXiv:1712.05877 (2017).
+
+
+#### Quantized training
 <a name="dl_with_limited_precision"></a>
-3. Gupta, Suyog, et al. ["Deep learning with limited numerical precision."][dl_with_limited_precision] International Conference on Machine Learning. 2015.
+* Gupta, Suyog, et al. ["Deep learning with limited numerical precision."][dl_with_limited_precision] International Conference on Machine Learning. 2015.
 <a name="courbariaux"></a>
-4. Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. ["Training deep neural networks with low precision multiplications."][courbariaux] arXiv preprint arXiv:1412.7024 (2014).
-<a name="ternary"></a>
-5. Zhu, Chenzhuo, et al. ["Trained ternary quantization."][ternary] arXiv preprint arXiv:1612.01064 (2016).
+* Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. ["Training deep neural networks with low precision multiplications."][courbariaux] arXiv preprint arXiv:1412.7024 (2014).
 <a name="wage"></a>
-6. Wu, Shuang, et al. ["Training and inference with integers in deep neural networks."][wage] arXiv preprint arXiv:1802.04680 (2018).
-<a name="deep_compression"></a>
-7. Han, Song, Huizi Mao, and William J. Dally. ["Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding."][deep_compression] arXiv preprint arXiv:1510.00149 (2015).
+* Wu, Shuang, et al. ["Training and inference with integers in deep neural networks."][wage] arXiv preprint arXiv:1802.04680 (2018).
+
+#### Extremely low-bit quantization
+<a name="ternary"></a>
+* Zhu, Chenzhuo, et al. ["Trained ternary quantization."][ternary] arXiv preprint arXiv:1612.01064 (2016).
 <a name="binary"></a>
-8. Courbariaux, Matthieu, et al. ["Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1."][binary] arXiv preprint arXiv:1602.02830 (2016).
+* Courbariaux, Matthieu, et al. ["Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1."][binary] arXiv preprint arXiv:1602.02830 (2016).
 <a name="xnor"></a>
-9. Rastegari, Mohammad, et al. ["Xnor-net: Imagenet classification using binary convolutional neural networks."][xnor]European Conference on Computer Vision. Springer, Cham, 2016.
+* Rastegari, Mohammad, et al. ["Xnor-net: Imagenet classification using binary convolutional neural networks."][xnor]European Conference on Computer Vision. Springer, Cham, 2016.
+
+#### Quantization for compression
+<a name="deep_compression"></a>
+* Han, Song, Huizi Mao, and William J. Dally. ["Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding."][deep_compression] arXiv preprint arXiv:1510.00149 (2015).
 
 [tf-lite]: https://www.tensorflow.org/mobile/tflite/
 [ai_chip_general]: https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm
