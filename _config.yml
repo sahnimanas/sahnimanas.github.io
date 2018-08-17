@@ -1,8 +1,9 @@
 # SITE CONFIGURATION
 baseurl: ""
 url: "https://sahnimanas.github.io"
+name: efficieNN
 title: efficieNN | sahnimanas.github.io # site's title
-description: ""
+description: "efficieNN blog: Neural Networks on Mobiles"
 
 
 # THEME-SPECIFIC CONFIGURATION
@@ -20,7 +21,7 @@ theme_settings:
    Powered by <a href="https://jekyllrb.com/">Jekyll</a> with <a href="https://github.com/sylhare/Type-on-Strap">Type on Strap</a>
 
   # Icons
-  rss: false # Make sure you created a feed.xml with feed.xml layout
+  rss: true # Make sure you created a feed.xml with feed.xml layout
   email_address: "sahnimanas@gmail.com" # Full email address, e.g. "sam@example.com"
   behance:
   bitbucket:
