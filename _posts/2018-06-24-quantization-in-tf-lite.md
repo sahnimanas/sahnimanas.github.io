@@ -8,6 +8,11 @@ tags: [quantization, tf-lite]
 ### 8-Bit Quantization and TensorFlow-Lite
 {: style="text-align: center"}
 
+
+_This post was featured on_ [Heartbeat by Fritz][heartbeat] _and_ [DL Weekly][dlweekly]
+
+
+
 <br />
 Francois Chollet puts it concisely:
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">- make it possible<br>- make it work<br>- make it efficient<br>- make it dependable and invisible<br>- move on to the next layer and never think about it again</p>&mdash; François Chollet (@fchollet) <a href="https://twitter.com/fchollet/status/985607164461907968?ref_src=twsrc%5Etfw">April 15, 2018</a></blockquote>
@@ -172,10 +177,11 @@ Most of the processes described here are specific to how quantization is done in
 <a name="warden"></a>
 * Pete Warden's blog posts on quantization: [1][pete_warden_why8], [2][pete_warden_how], [3][pete_warden_learned]
 <a name="gemmlowp_paper"></a>
-* Jacob, Benoit, et al. ["Quantization and training of neural networks for efficient integer-arithmetic-only inference."][gemmlowp_paper] arXiv preprint arXiv:1712.05877 (2017).
-
+* Jacob B, Kligys S, Chen B, Zhu M, Tang M, Howard A, Adam H, Kalenichenko D. ["Quantization and training of neural networks for efficient integer-arithmetic-only inference."][gemmlowp_paper] arXiv preprint arXiv:1712.05877. 2017 Dec 15.
 
 #### Quantized training
+<a name="tomg"></a>
+* Li H, De S, Xu Z, Studer C, Samet  H, Goldstein T. ["Training Quantized Nets: A Deeper Understanding."][tomg] Neural Information Processing Systems (NIPS), 2017
 <a name="dl_with_limited_precision"></a>
 * Gupta, Suyog, et al. ["Deep learning with limited numerical precision."][dl_with_limited_precision] International Conference on Machine Learning. 2015.
 <a name="courbariaux"></a>
@@ -194,6 +200,10 @@ Most of the processes described here are specific to how quantization is done in
 #### Quantization for compression
 <a name="deep_compression"></a>
 * Han, Song, Huizi Mao, and William J. Dally. ["Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding."][deep_compression] arXiv preprint arXiv:1510.00149 (2015).
+
+
+[heartbeat]: https://heartbeat.fritz.ai/8-bit-quantization-and-tensorflow-lite-speeding-up-mobile-inference-with-low-precision-a882dfcafbbd
+[dlweekly]: http://rev.vu/3Nwed?utm_campaign=Issue&utm_content=share&utm_medium=email&utm_source=Deep+Learning+Weekly
 
 [tf-lite]: https://www.tensorflow.org/mobile/tflite/
 [ai_chip_general]: https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm
@@ -215,6 +225,7 @@ Most of the processes described here are specific to how quantization is done in
 [xnor]: https://arxiv.org/abs/1603.05279
 [wage]: https://arxiv.org/abs/1802.04680
 [deep_compression]: https://arxiv.org/abs/1510.00149
+[tomg]: https://arxiv.org/abs/1706.02379
 
 [fp_hard_rant]: https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 [tf_tutorial]: https://www.tensorflow.org/performance/quantization
