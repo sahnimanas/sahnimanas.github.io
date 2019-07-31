@@ -10,7 +10,8 @@ feature-img: "assets/img/about.png"
 ## Manas Sahni
 {:style="text-align:center"}
 
-Software Engineer in Machine Learning at Samsung R&D; Math & CS grad from Delhi Technological University.
+Hi! I'm an incoming MS CS student at [Georgia Tech](https://www.cc.gatech.edu/).
 
-I like to learn new things & explain them, and talk people's ear off about work I find interesting.
-This blog, efficieNN, is where I'll be writing about things I've been exploring in the world of mobile-optimized neural networks.
+From 2017-2019, I was a Sotfware Engineer at Samsung Research Bangalore, where I worked on the intersection of machine learning & computing systems, exploring challenges in efficiently running heavy neural networks on low-power devices. This blog, _efficieNN_, is where I'll be writing about what I'm learning along the way.
+
+I like to learn new things & explain them, and talk people’s ears off about work I find interesting
