@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.3.1">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Manas Sahni">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Deploying efficient neural nets on mobiles is becoming increasingly important. This post explores the concept of quantized inference, and how it works in TensorFlow Lite.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://sahnimanas.github.io/post/quantization-in-tflite/">
+
+  
+
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#3492D8">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat|Roboto+Mono|Open+Sans">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.8488e6d1699a7d3eff96efb85c850f5f.css">
+
+  
+    
+    
+    
+    
+      
+    
+    
+    
+    <link rel="stylesheet" href="/css/academic.7dec1834d0221bc38db86511dd17040b.css">
+  
+
+  
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-121432719-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+  
+
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://sahnimanas.github.io/post/quantization-in-tflite/">
+
+  
+  
+  
+  
+    
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="twitter:site" content="@sahnimanas">
+  <meta property="twitter:creator" content="@sahnimanas">
+  
+  <meta property="og:site_name" content="Manas Sahni">
+  <meta property="og:url" content="https://sahnimanas.github.io/post/quantization-in-tflite/">
+  <meta property="og:title" content="Making Neural Nets Work With Low Precision | Manas Sahni">
+  <meta property="og:description" content="Deploying efficient neural nets on mobiles is becoming increasingly important. This post explores the concept of quantized inference, and how it works in TensorFlow Lite."><meta property="og:image" content="https://sahnimanas.github.io/post/quantization-in-tflite/featured.jpg">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-06-24T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-12-07T00:00:00&#43;00:00">
+  
+
+  
+
+
+  
+
+
+
+
+
+  <title>Making Neural Nets Work With Low Precision | Manas Sahni</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Manas Sahni</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link  active" href="/post"><span>Blog</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/cv.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+
+        
+
+        
+
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+
+
+
+
+
+
+
+<div class="article-header">
+  
+  
+  <img src="/img/quantization-in-tflite.png" class="article-banner" itemprop="image" alt="">
+  
+
+  
+</div>
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1 itemprop="name">Making Neural Nets Work With Low Precision</h1>
+
+  
+  <p class="page-subtitle">8-bit quantization in TensorFlow-Lite</p>
+  
+
+  
+    
+
+
+
+<meta content="2018-06-24 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+<meta content="2018-12-07 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+
+<div class="article-metadata">
+
+  
+  
+  
+  
+  <div>
+    
+
+
+
+  <span itemprop="author name" itemtype="http://schema.org/Person"></span>
+
+  </div>
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    <time>Dec 7, 2018</time>
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    13 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/quantization-in-tflite/#disqus_thread"></a>
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://sahnimanas.github.io/post/quantization-in-tflite/&amp;text=Making%20Neural%20Nets%20Work%20With%20Low%20Precision" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://sahnimanas.github.io/post/quantization-in-tflite/&amp;t=Making%20Neural%20Nets%20Work%20With%20Low%20Precision" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://sahnimanas.github.io/post/quantization-in-tflite/&amp;title=Making%20Neural%20Nets%20Work%20With%20Low%20Precision" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Making%20Neural%20Nets%20Work%20With%20Low%20Precision%20https://sahnimanas.github.io/post/quantization-in-tflite/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://reddit.com/submit?url=https://sahnimanas.github.io/post/quantization-in-tflite/&amp;title=Making%20Neural%20Nets%20Work%20With%20Low%20Precision" target="_blank" rel="noopener" class="share-btn-reddit">
+          <i class="fab fa-reddit-alien"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+<p><span style="color:#5f6a6a"><em>This post was featured on <a href="https://heartbeat.fritz.ai/8-bit-quantization-and-tensorflow-lite-speeding-up-mobile-inference-with-low-precision-a882dfcafbbd" target="_blank">Heartbeat by Fritz</a> and <a href="http://rev.vu/3Nwed?utm_campaign=Issue&amp;utm_content=share&amp;utm_medium=email&amp;utm_source=Deep+Learning+Weekly" target="_blank">DL Weekly</a></em></span>
+<br/>
+<br/>
+<div style="text-align: justify"></p>
+
+<p>Francois Chollet puts it concisely:
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">- make it possible<br>- make it work<br>- make it efficient<br>- make it dependable and invisible<br>- move on to the next layer and never think about it again</p>&mdash; François Chollet (@fchollet) <a href="https://twitter.com/fchollet/status/985607164461907968?ref_src=twsrc%5Etfw">April 15, 2018</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p>For many deep learning problems, we&rsquo;re finally starting with the “make it efficient” stage. We had been stuck at the first two stages for many decades where speed and efficiency weren&rsquo;t nearly as important as getting things to work in the first place. So, the question of how precise our calculations need to be – and whether we can manage with lower precision – wasn&rsquo;t often asked. However, now that neural networks are good enough at many problems to be of production-grade or better, this question has risen again. And the answers suggest we could do with low(er) precision, causing what may soon be a paradigm shift in mobile-optimized AI. This post talks about the concept of quantized inference, and how it works in <a href="https://www.tensorflow.org/mobile/tflite/" target="_blank">TensorFlow-Lite</a>.</p>
+
+<p><sub><em><strong>TL;DR just tell me how to quantize my model</strong></em>: Here&rsquo;s a <a href="https://www.tensorflow.org/performance/quantization" target="_blank">tutorial</a> from TensorFlow with code</sub></p>
+
+<p><details>
+ <summary> <big> Table of Contents (click to expand) </big> </summary>
+<h2>Table of Contents</h2>
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#what-is-low-precision">What is low-precision?</a></li>
+<li><a href="#why-do-we-care">Why do we care?</a></li>
+<li><a href="#why-does-it-work">Why does it work?</a></li>
+</ul></li>
+<li><a href="#quantization-in-tf-lite">Quantization in TF-Lite</a>
+<ul>
+<li><a href="#floating-point-vs-fixed-point">Floating-point vs Fixed-point</a></li>
+<li><a href="#quantization-scheme">Quantization Scheme</a></li>
+<li><a href="#a-typical-quantized-layer">A typical quantized layer</a></li>
+<li><a href="#fake-quantization">&ldquo;Fake&rdquo; Quantization</a></li>
+<li><a href="#what-s-next"><strong>What&rsquo;s next</strong></a></li>
+<li><a href="#further-reading"><strong>Further Reading</strong></a>
+<ul>
+<li>
+<ul>
+<li><a href="#quantization-in-tf-lite-1">Quantization in TF-Lite</a></li>
+<li><a href="#quantized-training">Quantized training</a></li>
+<li><a href="#extremely-low-bit-quantization">Extremely low-bit quantization</a></li>
+<li><a href="#quantization-for-compression">Quantization for compression</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<!-- 
+> [What is low-precision?](#what-is-low-precision) <br/>
+> [Why do we care?](#why-do-we-care) <br/>
+> [Why does it work?](#why-does-it-work) <br/>
+> [**Quantization in TF-Lite**](#quantization-in-tf-lite) <br/>
+> -- [Floating point vs Fixed-point](#floating-point-vs-fixed-point) <br/>
+> -- [Quantization scheme](#quantization-scheme) <br/>
+> -- [A typical quantized layer](#a-typical-quantized-layer) <br/>
+> -- ["Fake" Quantization](#%22fake%22-quantization) <br/>
+> -- [What's next](#whats-next) <br/>
+> [Further Reading](#further-reading) <br/> -->
+
+<p></details></p>
+
+<h2 id="what-is-low-precision">What is low-precision?</h2>
+
+<hr />
+
+<p>Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we&rsquo;re trying to work with a number line looking closer to the sparse one on the bottom. The numbers are quantized, i.e. discretized to some specific values, which we can then represent using integers instead of floating-point numbers. To be more precise (no pun), we&rsquo;ll use 8-bit fixed-point representation, which I&rsquo;ll get back to in a while.</p>
+
+
+
+
+<figure>
+
+<img src="/post/quantization-in-tflite/densesparse.png" />
+
+
+</figure>
+
+<h2 id="why-do-we-care">Why do we care?</h2>
+
+<hr />
+
+<p>Supporting inference with quantized types in any ML framework like Caffe, TensorFlow, etc. would require us to rework significant parts of the library&rsquo;s design, as well as re-implement most layers. Yet, there are several reasons that make the gains worth this effort:</p>
+
+<ul>
+<li>Arithmetic with lower bit-depth is faster, assuming the hardware supports it. Even though floating-point computation is no longer “slower” than integer on modern CPUs, operations with 32-bit floating point will almost always be slower than, say, 8-bit integers.</li>
+<li>In moving from 32-bits to 8-bits, we get (almost) 4x reduction in memory straightaway. Lighter deployment models mean they hog lesser storage space, are easier to share over smaller bandwidths, easier to update, etc.</li>
+<li>Lower bit-widths also mean that we can squeeze more data in the same caches/registers. This means we can reduce how often we access things from RAM, which is usually consumes a lot of time and power.</li>
+<li>Floating point arithmetic is <a href="https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/" target="_blank">hard</a> – which is why it may not always be supported on microcontrollers on some ultra low-power embedded devices, such as drones, watches, or IoT devices. Integer support, on the other hand, is readily available.<br /></li>
+</ul>
+
+<p>You can see why all of this sounds like great news for someone interested in deep learning applications on mobiles or embedded devices. Deep learning researchers are now finding ways to train models that work better with quantization, ML library developers are building extensive framework support for quantized inference, and tech giants are throwing their weight behind <a href="https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm" target="_blank">dedicated hardware for AI</a> with emphasis on quantization support (<a href="https://cloud.google.com/post/big-data/2017/05/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu" target="_blank">Google</a>, <a href="https://www.androidauthority.com/huawei-announces-kirin-970-797788/" target="_blank">Huawei</a>, <a href="https://www.cnet.com/news/microsoft-project-brainwave-speeds-ai-with-fpga-chips-on-azure-build-conference/" target="_blank">Microsoft</a>, <a href="https://www.theverge.com/2018/4/18/17254236/facebook-designing-own-chips-ai-report" target="_blank">Facebook</a>, <a href="https://www.theverge.com/2017/9/13/16300464/apple-iphone-x-ai-neural-engine" target="_blank">Apple</a>… ). Even without such dedicated hardware, DSP chips on modern smartphone chipsets have instruction sets well-suited for this kind of integer computation.
+<br />
+<br />
+</p>
+
+<h2 id="why-does-it-work">Why does it work?</h2>
+
+<hr />
+
+<p>There has been an increasing amount of work in quantizing neural networks, and they broadly point to two reasons. First, DNNs are known to be quite robust to noise and other small perturbations once trained. This means even if we subtly round-off numbers, we can still expect a reasonably accurate answer. Moreover, the weights and activations by a particular layer often tend to lie in a small range, which can be estimated beforehand. This means we don&rsquo;t need the ability to store 10<sup>6</sup> and 10<sup>-6</sup> in the same data type - allowing us to concentrate our precicious fewer bits within a smaller range, say -3 to +3. As you may imagine, it&rsquo;ll be crucial to accurately know this smaller range - a recurring theme you&rsquo;ll see below.</p>
+
+<p>So, if done right, quantization only causes a small loss of precision which usually doesn&rsquo;t change the output significantly. Finally, small losses in accuracy can be recovered by retraining our models to adjust to quantization.</p>
+
+<p>You can see an example below of the weights in a layer from AlexNet, with a histogram of actual weights on the left. Notice how most values lie in a small range. We can quantize, i.e. <em>discretize</em> the range to only record some of these values accurately, and round-off the rest. The right sub-graph shows one such quantization using 4-bits (16 discrete values). You can see how we can improve this with a less stringent bit-length of say, 8-bits.</p>
+
+<p><img src="/post/quantization-in-tflite/weights_quant.png" alt="weights_quant" />
+<em><sub>Source: <a href="#deep_compression">Han et al</a></sub></em></p>
+
+<p>Why not train in lower precision directly, you ask? Well, it&rsquo;s not impossible but we&rsquo;re yet to iron out many kinks. Models are trained using very tiny gradient updates, for which we <em>do</em> need high precision. However, there have been a plethora of experiments with quantization &ndash; we have seen results with quantization in training (<a href="#wage">1</a>, <a href="#courbariaux">2</a>, <a href="#dl_with_limited_precision">3</a>), or with more intricate methods that use variable-precision, methods that replace multiplications with <a href="#xnor">bit-wise ops</a>, <a href="#ternary">ternary</a> or even <a href="#binary">binary weights</a>! However, many of them have been restricted to experimental studies, or still have ways to go from being widely applicable. For the remainder of this post, I&rsquo;ll be talking about the more common task of inference using 8-bit fixed point quantization in TensorFlow Lite, as described in <a href="#gemmlowp_paper">this paper</a>.</p>
+
+<hr />
+
+<h1 id="quantization-in-tf-lite">Quantization in TF-Lite</h1>
+
+<h2 id="floating-point-vs-fixed-point">Floating-point vs Fixed-point</h2>
+
+<p>First, a quick primer on floating/fixed-point representation. Floating point uses a mantissa and an exponent to represent real values – and both can vary. The exponent allows for representing a wide range of numbers, and the mantissa gives the precision. The decimal point can <em>“float”</em>, i.e. appear anywhere relative to the digits.</p>
+
+<p>If we replace the exponent by a fixed scaling factor, we can use integers to represent the value of a number relative to (i.e. an integer multiple of) this constant. The decimal point&rsquo;s position is now <em>&ldquo;fixed&rdquo;</em> by the scaling factor. Going back to the number line example, the value of the scaling factor determines the smallest distance between 2 ticks on the line, and the number of such ticks is decided by how many bits we use to represent the integer (for 8-bit fixed point, 256 or 2<sup>8</sup>). We can use these to tradeoff between range and precision. Any value that is not an exact multiple of the constant will get rounded to the nearest point.</p>
+
+<p><img src="/post/quantization-in-tflite/floatfixed.png" alt="floatfixed" />
+<em><sub>Source: <a href="#courbariaux">Courbariaux et al</a></sub></em></p>
+
+<h2 id="quantization-scheme">Quantization Scheme</h2>
+
+<p>Unlike floating point, there is no universal standard for fixed-point numbers, and is instead domain-specific. Our quantization scheme (mapping between real &amp; quantized numbers) requires the following:</p>
+
+<p><strong>1. It should be linear (or affine).</strong></p>
+
+<ul>
+<li>If it weren&rsquo;t that way, then the result of fixed-point calculations won&rsquo;t directly map back to real numbers.</li>
+</ul>
+
+<p><strong>2. It allows us to always represent <code>0.f</code> accurately.</strong></p>
+
+<ul>
+<li>If we quantize and dequantize any real value, only 256 (or generally, 2<sup>B</sup>) of them will return the exact the same number, while all others will suffer some precision loss. If we ensure that <code>0.f</code> is one of these 256 values , it turns out that DNNs can be quantized more accurately. The authors claim that this improves accuracy because 0 has a special significance in DNNs (such as padding). Besides, having 0 map to another value that&rsquo;s higher/lower than zero will introduce a bias in the quantization scheme.</li>
+</ul>
+
+<p>So our quantization scheme will simply be a shifting and scaling of the real number line to a quantized number line. For a given set of real values, we want the minimum/maximum real values in this range $\left[r_{min}, r_{max}\right]$ to map to the minimum/maximum integer values $[0,2^B-1]$ respectively, with everything in between linearly distributed.<br />
+This gives us a pretty simple linear equation:</p>
+
+<p>$$
+\begin{aligned}
+  r &amp;= {r_{max}-r_{min} \over (2^B-1) - 0} \times (q-z) \\<br />
+  &amp;= S \times (q-z)
+\end{aligned}
+$$</p>
+
+<p>Here,</p>
+
+<ul>
+<li>$r$ is the real value (usually <code>float32</code>)</li>
+<li>$q$ is its quantized representation as a $B$-bit integer (<code>uint8</code>, <code>uint32</code>, etc.)</li>
+<li>$S$ (<code>float32</code>) and $z$ (<code>uint</code>) are the factors by which we scale and shift the number line. $z$ will always map back exactly to <code>0.f</code>.</li>
+</ul>
+
+
+
+
+<figure>
+
+<img src="/post/quantization-in-tflite/numberline.png" />
+
+
+</figure>
+
+<p>From this point, we&rsquo;ll assume quantized variables to be represented as <code>uint8</code>, except where mentioned. Alternatively, we could also use int8, which would just shift the zero-point, $z$.</p>
+
+<p>The set of numbers being quantized with the same parameters are values we expect to lie in the same range, such as weights of a given layer or activation outputs at a given node. We&rsquo;ll see later how to find the actual ranges for various quantities in TensorFlow&rsquo;s <em>fake quantization</em> nodes. First, let&rsquo;s see just put this together to see how these quantized layers fit in a network.
+<br/></p>
+
+<h2 id="a-typical-quantized-layer">A typical quantized layer</h2>
+
+<p>Let&rsquo;s look at the components of a conventional layer implemented in floating-point:</p>
+
+<ul>
+<li>Zero or more weight tensors, which are constant, and stored as float.</li>
+<li>One or more input tensors; again, stored in float.</li>
+<li>The forward pass function which operates on the weights and inputs, using floating point arithmetic, storing the output in float</li>
+<li>Output tensors, again in float.</li>
+</ul>
+
+<p>Now the weights of a pre-trained network are constant, so we can convert &amp; store them in quantized form beforehand with their exact ranges known to us.</p>
+
+<p>The input to a layer, or equivalently the output of a preceding layer, are also quantized with their own separate parameters. But wait – to quantize a set of numbers don&rsquo;t we need to know their range (and thus their actual values) in float first? Then what&rsquo;s the point of quantized computation? The answer to this lies behind the fact that a layer&rsquo;s output generally lies in a bounded range for most inputs, with only a few outliers. While we ideally would want to know the exact range of values to quantize them accurately, results of unknown inputs can still be expected to be in similar bounds. Luckily, we are already computing the output in float during another stage – training. Thus, we can find the average output range on a large number of inputs during training and use this as a proxy to the output quantization parameters. When running on an actual unseen input, an outlier will get squashed if our range is too small, or get rounded if the range is too wide. But hopefully there will only be a few of these.</p>
+
+<p>What&rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&rsquo;ll also have to change some of the layers&rsquo; logic. For example, ReLU should now compare values against <code>Quantized(0)</code> instead of <code>0.f</code></p>
+
+<p>The below figure puts it all together.</p>
+
+<p><img src="/post/quantization-in-tflite/layer.png" alt="layer" /></p>
+
+<p>We can even get a bit clever with the re-quantization in (3). TF-Lite uses gemmlowp for matrix multiplication, which stores results of <code>uint8</code> matrix products in <code>int32</code>. Then, we can add the biases quantized in higher precision as <code>int32</code> itself. Finally, in going from 32-bit to 8-bit, (4) would expect the range of this layer&rsquo;s output. Instead, we can specify the quantization range expected after the next activation layer, such as ReLU. This will implicitly compute activations and also help us use the full quantization range in this layer.<br />
+<br/></p>
+
+<h2 id="fake-quantization">&ldquo;Fake&rdquo; Quantization</h2>
+
+<p>Now that we have everything in place to work with quantized variables, what&rsquo;s left is preparing &amp; converting a
+conventional neural network to the quantized form, which is where TensorFlow&rsquo;s “fake quantization” nodes come in.</p>
+
+<p><strong>1. The first role that they fulfil is making the network more immune to precision loss due to quantization.</strong></p>
+
+<ul>
+<li>The simplest approach to quantizing a neural network is to first train it in full precision, and then simply quantize the weights to fixed-point. This approach works okay for large models, but with small models with less redundant weights, the loss in precision adversely affects accuracy. With the fake quantization nodes, the rounding effect of quantization is simulated in the forward pass as it would occur in actual inference. In a way, we&rsquo;re looking to fine-tune the weights to adjust for the precision loss. All quantities are still stored as float with full-precision desirable during training, and backpropagation still works as usual.</li>
+</ul>
+
+<p><strong>2. Secondly, fake quantization nodes record the ranges of activations during training, which we discussed earlier.</strong></p>
+
+<ul>
+<li>These nodes are placed in the training graph to exactly match wherever activations would change quantization ranges (input and output in below figure). As the network trains, they collect a moving average of the ranges of float values seen at that node.</li>
+</ul>
+
+<p>
+
+
+<figure>
+
+<img src="/post/quantization-in-tflite/simple.png" width="30%" />
+
+
+</figure>
+
+
+
+<figure>
+
+<img src="/post/quantization-in-tflite/simple_quantized.png" width="30%" />
+
+
+</figure></p>
+
+<p><em><sub>Source: <a href="#gemmlowp_paper">Benoit et al</a></sub></em></p>
+
+<p>All this information is then taken by TF-Lite&rsquo;s TOCO (TensorFlow Optimizing COnverter) tool which – apart from other optimizations – performs the actual conversion to quantized values and specifies how to use them in inference by TF-Lite&rsquo;s kernels on mobile devices.</p>
+
+<p>The chart below shows the accuracy-latency tradeoff for various MobileNet models for ImageNet classification in quantized and float inference modes. For most part, the whole quantization pipeline works well and only suffers from very minor losses in accuracy. An interesting area to explore further is how this loss can be also be recovered via retraining.</p>
+
+
+
+
+<figure>
+
+<img src="/post/quantization-in-tflite/accuracy.png" width="60%" />
+
+
+
+<figcaption data-pre="Figure " data-post=":" >
+  <h4>Accuracy-latency tradeoff with MobileNets. Source: <a href="#gemmlowp_paper">Benoit et al</a></h4>
+  
+</figcaption>
+
+</figure>
+
+<h2 id="what-s-next"><strong>What&rsquo;s next</strong></h2>
+
+<p>Most of the processes described here are specific to how quantization is done in TensorFlow Lite, which only deals with quantized inference with a model trained using good old single precision. Even for inference, it just happens to be one of many options and it remains to be seen if other approaches might work better. What is certain is that the benefits offered by quantization today on mobile devices are real, and perhaps beyond mobile devices in the future; and hence the field is seeing increasing interest from all sorts of stakeholders. There are all kinds of other results with quantized training, non-linear quantization, binary quantization, networks without multipliers… it&rsquo;s a growing list, which I hope to cover soon.</p>
+
+<hr />
+
+<hr />
+
+<h2 id="further-reading"><strong>Further Reading</strong></h2>
+
+<p><div style="text-align: left"></p>
+
+<h4 id="quantization-in-tf-lite-1">Quantization in TF-Lite</h4>
+
+<p><a name="warden"></a></p>
+
+<ul>
+<li>Pete Warden&rsquo;s blog posts on quantization: <a href="https://petewarden.com/2015/05/23/why-are-eight-bits-enough-for-deep-neural-networks/" target="_blank">1</a>, <a href="https://petewarden.com/2016/05/03/how-to-quantize-neural-networks-with-tensorflow/" target="_blank">2</a>, <a href="https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/" target="_blank">3</a>
+<a name="gemmlowp_paper"></a></li>
+<li>Jacob B, Kligys S, Chen B, Zhu M, Tang M, Howard A, Adam H, Kalenichenko D. <a href="https://arxiv.org/abs/1712.05877" target="_blank">&ldquo;Quantization and training of neural networks for efficient integer-arithmetic-only inference.&rdquo;</a> arXiv preprint arXiv:1712.05877. 2017 Dec 15.</li>
+</ul>
+
+<h4 id="quantized-training">Quantized training</h4>
+
+<p><a name="tomg"></a></p>
+
+<ul>
+<li>Li H, De S, Xu Z, Studer C, Samet  H, Goldstein T. <a href="https://arxiv.org/abs/1706.02379" target="_blank">&ldquo;Training Quantized Nets: A Deeper Understanding.&rdquo;</a> Neural Information Processing Systems (NIPS), 2017
+<a name="dl_with_limited_precision"></a></li>
+<li>Gupta, Suyog, et al. <a href="https://arxiv.org/abs/1502.02551" target="_blank">&ldquo;Deep learning with limited numerical precision.&rdquo;</a> International Conference on Machine Learning. 2015.
+<a name="courbariaux"></a></li>
+<li>Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. <a href="https://arxiv.org/abs/1412.7024" target="_blank">&ldquo;Training deep neural networks with low precision multiplications.&rdquo;</a> arXiv preprint arXiv:1412.7024 (2014).
+<a name="wage"></a></li>
+<li>Wu, Shuang, et al. <a href="https://arxiv.org/abs/1802.04680" target="_blank">&ldquo;Training and inference with integers in deep neural networks.&rdquo;</a> arXiv preprint arXiv:1802.04680 (2018).</li>
+</ul>
+
+<h4 id="extremely-low-bit-quantization">Extremely low-bit quantization</h4>
+
+<p><a name="ternary"></a></p>
+
+<ul>
+<li>Zhu, Chenzhuo, et al. <a href="https://arxiv.org/abs/1612.01064" target="_blank">&ldquo;Trained ternary quantization.&rdquo;</a> arXiv preprint arXiv:1612.01064 (2016).
+<a name="binary"></a></li>
+<li>Courbariaux, Matthieu, et al. <a href="https://arxiv.org/abs/1602.02830" target="_blank">&ldquo;Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1.&rdquo;</a> arXiv preprint arXiv:1602.02830 (2016).
+<a name="xnor"></a></li>
+<li>Rastegari, Mohammad, et al. <a href="https://arxiv.org/abs/1603.05279" target="_blank">&ldquo;Xnor-net: Imagenet classification using binary convolutional neural networks.&rdquo;</a>European Conference on Computer Vision. Springer, Cham, 2016.</li>
+</ul>
+
+<h4 id="quantization-for-compression">Quantization for compression</h4>
+
+<p><a name="deep_compression"></a></p>
+
+<ul>
+<li>Han, Song, Huizi Mao, and William J. Dally. <a href="https://arxiv.org/abs/1510.00149" target="_blank">&ldquo;Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.&rdquo;</a> arXiv preprint arXiv:1510.00149 (2015).</li>
+</ul>
+
+    </div>
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantization/">quantization</a>
+  
+  <a class="badge badge-light" href="/tags/tf-lite/">tf-lite</a>
+  
+  <a class="badge badge-light" href="/tags/inference/">inference</a>
+  
+  <a class="badge badge-light" href="/tags/performance/">performance</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+      
+      
+    
+
+    
+
+    
+<section id="comments">
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "sahnimanas-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//sahnimanas-github-io.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="/js/academic.min.80598a1dc7d6b3a6fc1a6321b4faaf74.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://sahnimanas.github.io/authors/</loc>
+    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/</loc>
+    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/authors/</loc>
+    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/</loc>
+    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/post/</loc>
+    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/post/quantization-in-tflite/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/tags/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/tags/inference/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/tags/performance/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/tags/quantization/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/tags/tf-lite/</loc>
+    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/authors/admin/</loc>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/publication_types/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/publication/</loc>
+  </url>
+  
+  <url>
+    <loc>https://sahnimanas.github.io/talk/</loc>
+  </url>
+  
+</urlset>
