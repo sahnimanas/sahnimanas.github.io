@@ -19,11 +19,11 @@
       <guid>https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/</guid>
       <description>
 
-&lt;p&gt;On my not-too-shabby laptop, I can run most common CNN models in (at most) a 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &amp;ldquo;heavy&amp;rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over &lt;em&gt;2 seconds&lt;/em&gt; for a single layer!&lt;/p&gt;
+&lt;p&gt;On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &amp;ldquo;heavy&amp;rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over &lt;em&gt;2 seconds&lt;/em&gt; for a single layer!&lt;/p&gt;
 
 &lt;p&gt;It&amp;rsquo;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don&amp;rsquo;t? How are they able to improve performance by 100x? What exactly does one do to &amp;ldquo;optimize&amp;rdquo; or accelerate neural networks operations? These are questions I often asked (and get asked) when talking about high-performance/efficient DNNs.&lt;/p&gt;
 
-&lt;p&gt;In this post, I&amp;rsquo;ll attempt to walk you through how a layer like convolution is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find the case of convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &amp;ndash; a little of bit of algorithmic cleverness and a lot of tuning and careful exploitation of low-level architecture.&lt;/p&gt;
+&lt;p&gt;In this post, I&amp;rsquo;ll attempt to walk you through how a layer like convolution is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find the case of convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &amp;ndash; a little of bit of algorithmic cleverness and a lot of careful tuning and exploitation of low-level architecture.&lt;/p&gt;
 
 &lt;p&gt;A lot of what I cover here is from the seminal paper &lt;a href=&#34;https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf&#34; target=&#34;_blank&#34;&gt;&lt;em&gt;&amp;ldquo;Anatomy of a high-performance matrix multiplication&amp;rdquo;&lt;/em&gt;&lt;/a&gt; by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from &lt;a href=&#34;https://cs.stanford.edu/people/shadjis/blas.html&#34; target=&#34;_blank&#34;&gt;Dr. Stefan Hadjis&lt;/a&gt; and &lt;a href=&#34;https://www.whatsacreel.net&#34; target=&#34;_blank&#34;&gt;Chris Rose&lt;/a&gt;.&lt;/p&gt;
 
@@ -81,7 +81,7 @@ The peak performance of my CPU, according to Intel, is 80 &lt;em&gt;billion&lt;/
 &lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32 \frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. For a single core, this number is 80 GFLOP/s.&lt;/p&gt;
+&lt;p&gt;This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32\frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. Similarly for a single core, this number is 80 GFLOP/s.&lt;/p&gt;
 
 &lt;h2 id=&#34;storage-orders-and-row-major&#34;&gt;Storage orders and Row Major&lt;/h2&gt;
 
@@ -110,8 +110,7 @@ While this is a vast subject, what&#39;s important to know for this discussion i
 
 &lt;h2 id=&#34;halide&#34;&gt;Halide&lt;/h2&gt;
 
-&lt;p&gt;Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even
-assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code . &lt;a href=&#34;https://halide-lang.org&#34; target=&#34;_blank&#34;&gt;Halide&lt;/a&gt; is an embededd language in C++ that helps abstract these concepts, designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (&lt;em&gt;what&lt;/em&gt; to compute) and the schedule (&lt;em&gt;how/when&lt;/em&gt; to compute it). We can keep the algorithm fixed, and play around with different schedules.&lt;/p&gt;
+&lt;p&gt;Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code . &lt;a href=&#34;https://halide-lang.org&#34; target=&#34;_blank&#34;&gt;Halide&lt;/a&gt; is an embededd language in C++ that helps abstract these concepts, designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (&lt;em&gt;what&lt;/em&gt; to compute) and the schedule (&lt;em&gt;how/when&lt;/em&gt; to compute it). We can keep the algorithm fixed, and play around with different schedules.&lt;/p&gt;
 
 &lt;p&gt;I&amp;rsquo;ll use Halide to represent these lower-level concepts, but you should be able to understand the intuitive function names enough to follow along.&lt;/p&gt;
 
