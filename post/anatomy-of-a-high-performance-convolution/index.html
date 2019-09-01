@@ -679,9 +679,9 @@
 
 <p>On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &ldquo;heavy&rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over <em>2 seconds</em> for a single layer!</p>
 
-<p>It&rsquo;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don&rsquo;t? How are they able to improve performance by 100x? What exactly does one do to &ldquo;optimize&rdquo; or accelerate neural networks operations? These are questions I often asked (and get asked) when talking about high-performance/efficient DNNs.</p>
+<p>It&rsquo;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But what exactly is the black magic that these libraries use that we mere mortals don&rsquo;t? How are they able to improve performance by 100x? What exactly does one do to &ldquo;optimize&rdquo; or accelerate neural networks operations? These are questions I often asked (and get asked) when talking about high-performance/efficient DNNs.</p>
 
-<p>In this post, I&rsquo;ll attempt to walk you through how a layer like convolution is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find the case of convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &ndash; a little of bit of algorithmic cleverness and a lot of careful tuning and exploitation of low-level architecture.</p>
+<p>In this post, I&rsquo;ll attempt to walk you through how a convolution layer is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &ndash; a little of bit of algorithmic cleverness and a lot of careful tuning and exploitation of low-level architecture.</p>
 
 <p>A lot of what I cover here is from the seminal paper <a href="https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf" target="_blank"><em>&ldquo;Anatomy of a high-performance matrix multiplication&rdquo;</em></a> by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from <a href="https://cs.stanford.edu/people/shadjis/blas.html" target="_blank">Dr. Stefan Hadjis</a> and <a href="https://www.whatsacreel.net" target="_blank">Chris Rose</a>.</p>
 
@@ -691,7 +691,7 @@
 <p>&ldquo;Premature optimization is the root of all evil&rdquo; &ndash; Donald Knuth</p>
 </blockquote>
 
-<p>Before we go around optimizing things, let&rsquo;s first get a handle on our baseline and bottlenecks. Here&rsquo;s a naive numpy/for-loop convolution you&rsquo;d write in Deep Learning 101:</p>
+<p>Before we go around optimizing things, let&rsquo;s first get a handle on our baseline and bottlenecks. Here&rsquo;s a naive numpy/for-loop convolution that you&rsquo;d write in Deep Learning 101:</p>
 
 <pre><code class="language-python">'''
 Convolve `input` with `kernel` to generate `output`
@@ -712,19 +712,19 @@ for filter in 0..num_filters
 
 <p>Yikes. That&rsquo;s 6 nested <code>for</code> loops for one conv (7 if you iterate over batches of multiple inputs). And we&rsquo;re not yet looking at stride, dilation, or any other parameters. If I plug in here the sizes for, say the first layer of MobileNet, and run this in plain C, it takes a whopping <em>22 seconds</em>! With the most aggressive compiler optimizations like <code>-O3</code> or <code>-Ofast</code>, it reduces to 2.2 seconds. But that&rsquo;s still terribly slow for just the first layer.</p>
 
-<p>What if I run the same layer using, say, Caffe? It took just 18ms on the same PC. That&rsquo;s over a 100x speedup! The entire network itself runs in ~100ms on my CPU.</p>
+<p>What if I run the same layer using, say, Caffe? It took just 18ms on the same PC. That&rsquo;s more than a 100x speedup! The entire network itself runs in ~100ms on my CPU.</p>
 
 <p>What is the bottleneck and where should we begin to optimize?</p>
 
 <p>The inner-most loop does 2 floating point operations (multiply &amp; add), and for the sizes I used, it&rsquo;s executed about 85.16 million times, i.e. this convolution requires 170 million floating point operations (MFLOPs).
 The peak performance of my CPU, according to Intel, is 80 <em>billion</em> FLOPs per second, i.e. it could <em>theoretically</em> finish the job in 0.002 seconds. Clearly, we&rsquo;re nowhere near that and clearly, the raw processing capability is more than sufficient here.</p>
 
-<p>The reason that the theoretical peak is not achieved (ever) is that memory accesses also take time &ndash; it&rsquo;s not enough to <em>process</em> data quickly, if you can&rsquo;t <em>get</em> the data quickly. It turns out that the heavily-nested for-loops above make for very difficult data access patterns which poorly utilize the cache.</p>
+<p>The reason that the theoretical peak isn&rsquo;t achieved (ever) is that memory accesses also take time &ndash; it&rsquo;s not enough to <em>process</em> data quickly, if you can&rsquo;t <em>get</em> the data quickly. It turns out that the heavily-nested for-loops above make for very difficult data access patterns, which poorly utilize the cache.</p>
 
-<p>As you&rsquo;ll see, a recurring concern throughout the discussion will be how we&rsquo;re accessing data we&rsquo;re operating on, and how that relates to the the way it&rsquo;s stored.
+<p>As you&rsquo;ll see, a recurring concern throughout the discussion will be how we&rsquo;re accessing the data we&rsquo;re operating on, and how that relates to the way it&rsquo;s stored.
 <!-- If you compare the number of arithmetic operations to the memory accesses, convolution does 100-1000 ops per byte of data -- this is also called the **arithmetic intensity** or the ops:bytes ratio. So,  --></p>
 
-<h1 id="some-prerequisites">Some prerequisites</h1>
+<h1 id="some-prerequisites">Some Prerequisites</h1>
 
 <h2 id="flop-s">FLOP/s</h2>
 
@@ -739,7 +739,7 @@ The peak performance of my CPU, according to Intel, is 80 <em>billion</em> FLOPs
 <br /></li>
 </ul>
 
-<p>This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32\frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. Similarly for a single core, this number is 80 GFLOP/s.</p>
+<p>This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32\frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. Similarly, for a single core, this number is 80 GFLOP/s.</p>
 
 <h2 id="storage-orders-and-row-major">Storage orders and Row Major</h2>
 
@@ -768,19 +768,19 @@ While this is a vast subject, what's important to know for this discussion is th
 
 <h2 id="halide">Halide</h2>
 
-<p>Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code . <a href="https://halide-lang.org" target="_blank">Halide</a> is an embededd language in C++ that helps abstract these concepts, designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (<em>what</em> to compute) and the schedule (<em>how/when</em> to compute it). We can keep the algorithm fixed, and play around with different schedules.</p>
+<p>Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code. <a href="https://halide-lang.org" target="_blank">Halide</a> is an embedded language in C++ that helps abstract these concepts and is designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (<em>what</em> to compute) and the schedule (<em>how/when</em> to compute it). We can keep the algorithm fixed, and play around with different schedules.</p>
 
 <p>I&rsquo;ll use Halide to represent these lower-level concepts, but you should be able to understand the intuitive function names enough to follow along.</p>
 
-<h1 id="from-convolution-to-gemm">From convolution to GEMM</h1>
+<h1 id="from-convolution-to-gemm">From Convolution to GEMM</h1>
 
-<p>The naive convolution that we discussed above is slow already, and a more realistic implementation will only be further complicated by parameters like stride, dilation, padding, etc. We could continue using the basic conv as a working example but as you&rsquo;ll see, extracting maximum performance out of the computer requires many tricks &ndash; carefully fine-tuning at multiple levels &amp; exploting very specific knowledge of the computer architecture at hand. In other words, this is going to be a formidable task if we&rsquo;re hoping to address all of the complexities.</p>
+<p>The naive convolution that we discussed above is slow already, and a more realistic implementation will only be further complicated by parameters like stride, dilation, padding, etc. We could continue using the basic conv as a working example but, as you&rsquo;ll see, extracting maximum performance out of the computer requires many tricks &ndash; carefully fine-tuning at multiple levels &amp; exploting very specific knowledge of the computer architecture at hand. In other words, this is going to be a formidable task if we&rsquo;re hoping to address all of the complexities.</p>
 
-<p>Can we instead transform this into a problem that&rsquo;s easier to solve? Perhaps, matrix multiplication?</p>
+<p>Can we instead transform this into a problem that&rsquo;s easier to solve? Perhaps matrix multiplication?</p>
 
-<p>Matrix multiplication, or matmul, or <strong>Ge</strong>neralized <strong>M</strong>atrix <strong>M</strong>ultiplication (<strong>GEMM</strong>), is <a href="https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/" target="_blank">at the heart of deep learning</a>. It&rsquo;s used in fully-connected layers, RNNs, etc. and can be used to implement convolutions too.</p>
+<p>Matrix multiplication, or matmul, or <strong>Ge</strong>neralized <strong>M</strong>atrix <strong>M</strong>ultiplication (<strong>GEMM</strong>), is <a href="https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/" target="_blank">at the heart of deep learning</a>. It&rsquo;s used in fully-connected layers, RNNs, etc., and can be used to implement convolutions too.</p>
 
-<p>Conv is, after all, a dot-product of the filter with input patches. If we layout the filter into a 2-D matrix and the input patches in another, then the multiplying these 2 matrices would compute the same dot product. And matrix multiplication &ndash; unlike CNNs &ndash; has been heavily studied and optimized over several decades, being a critical problem in many scientific domains.</p>
+<p>Conv is, after all, a dot-product of the filter with input patches. If we lay out the filter into a 2-D matrix and the input patches in another, then the multiplying these 2 matrices would compute the same dot product. And matrix multiplication &ndash; unlike CNNs &ndash; has been heavily studied and optimized over several decades, being a critical problem in many scientific domains.</p>
 
 <p>The above laying out of the image patches into a matrix is called <em><strong>im2col</strong></em>, for image to column. We rearrange the image into columns of a matrix, so that each column corresponds to one patch where the conv filter is applied.</p>
 
@@ -795,7 +795,7 @@ While this is a vast subject, what's important to know for this discussion is th
 
 </figure></p>
 
-<p>Below is the same operation implemented as a matrix multiplication. The right matrix is the result of im2col &ndash; it has to be constructed by copying pixels from the original image. The left matrix has the conv weights which are already stored this way in memory.
+<p>Below is the same operation implemented as a matrix multiplication. The right matrix is the result of im2col &ndash; it has to be constructed by copying pixels from the original image. The left matrix has the conv weights, which are already stored this way in memory.
 
 
 
@@ -806,9 +806,13 @@ While this is a vast subject, what's important to know for this discussion is th
 
 </figure></p>
 
-<p>Note that the matrix product gives us the conv output conv directly &ndash; there is no need for an extra &ldquo;conversion&rdquo; to the original form.</p>
+<p>Note that the matrix product gives us the conv output directly &ndash; there is no need for an extra &ldquo;conversion&rdquo; to the original form.</p>
 
 <p>I&rsquo;ve shown each patch as independent here for visual clarity. However, in reality, there usually is some overlap between different image patches, and hence im2col incurs some memory duplication. The time taken to generate this im2col buffer and the inflated memory, will have to be offset by the speedup we achieve via GEMM.</p>
+
+<p>With im2col, we have now transformed the convolution operation into a matrix multiplication. We can now plug in more general-purpose &amp; popular linear algebra libraries like OpenBLAS, Eigen, etc. to take care of efficiently computing this matmul, riding on the back of decades of optimizations &amp; careful fine-tuning.</p>
+
+<p>We&rsquo;ll need some pretty serious speedups if we&rsquo;re going to justify the extra work and memory resulting from the im2col transform, so let&rsquo;s see how these libraries might be achieving that. This also gives a good intro to some general approaches when optimizing at the system level.</p>
 
 <div class="alert alert-note">
   <div>
@@ -817,10 +821,6 @@ While this is a vast subject, what's important to know for this discussion is th
 </div>
 
 <h1 id="speeding-up-the-gemm">Speeding up the GEMM</h1>
-
-<p>With im2col, we have now transformed the convolution operation into a matrix multiplication. We can now plug in more general-purpose &amp; popular linear algebra libraries like OpenBLAS, Eigen, etc. to take care of efficiently computing this matmul, riding on the back of decades of optimizations &amp; careful fine-tuning.</p>
-
-<p>We&rsquo;ll need some pretty serious speedups if we&rsquo;re going to justify the extra work and memory resulting from the im2col transform, so let&rsquo;s see how these libraries might be achieving that. This also gives a good intro to some general approaches when optimizing at the system level.</p>
 
 <h2 id="naive">Naive</h2>
 
@@ -858,7 +858,7 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 <h2 id="caching">Caching</h2>
 
-<p>The RAM is a large but slow storage. CPU caches are orders of magnitude faster, but much smaller, so using them rightly is critical. But there is no explicit instruction that says &ldquo;load this data to cache&rdquo;. It&rsquo;s a process automatically managed by the CPU.</p>
+<p>The RAM is a large but slow storage. CPU caches are orders of magnitude faster, but much smaller, so using them correctly is critical. But there is no explicit instruction that says &ldquo;load this data to cache&rdquo;. It&rsquo;s a process automatically managed by the CPU.</p>
 
 <p>Every time we fetch data from the main memory, the CPU automatically loads it and its neighboring memory into the cache, hoping to utilize locality of reference.</p>
 
@@ -1006,7 +1006,7 @@ for xo in 0..N/16:
 
 <h2 id="threading">Threading</h2>
 
-<p>Till now we&rsquo;ve only been using one CPU core. We have multiple cores available, and each core can physically execute multiple instructions at the same time. A program can divide itself into multiple threads, and each thread can run on a separate core.</p>
+<p>Up until now we&rsquo;ve only been using one CPU core. We have multiple cores available, and each core can physically execute multiple instructions at the same time. A program can divide itself into multiple threads, and each thread can run on a separate core.</p>
 
 <pre><code class="language-cpp">C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
@@ -1025,7 +1025,7 @@ for xo in 0..N/16 in steps of 16:
 */
 </code></pre>
 
-<p>You might notice that the performance actually drops for very small sizes, because with small workloads, the threads spend less time working and more time synchronizing with each other. There are a lot of other such issues with respect to threading which could warrant another deep dive on its own.</p>
+<p>You might notice that the performance actually drops for very small sizes, because with small workloads, the threads spend less time working and more time synchronizing with each other. There are a lot of other such issues with respect to threading that could warrant another deep dive on its own.</p>
 
 
 
@@ -1041,7 +1041,7 @@ for xo in 0..N/16 in steps of 16:
 
 <p>Loops let us avoid the pain of writing the same line over and over again, while introducing a little extra work like checking for loop termination, updating the loop counters, pointer arithmetic, etc. If instead we manually write out the repeated loop statements and <em>unroll</em> the loop, we can reduce this overhead. For instance, instead of 8 iterations of 1 statement, we could run 2 iterations of 4 statements.</p>
 
-<p>I initially found it surprising that such fickle and seemingly insignificant overheads can actually matter. However, while these loop operations may be &ldquo;inexpensive&rdquo;, they&rsquo;re certainly not free. Their cost adds up quickly if you remember that they&rsquo;ll be executed at <em>each step</em> of the loop, which could be run millions of times. The benefits do diminish progressively as the loop overhead becomes relatively smaller.</p>
+<p>I initially found it surprising that such fickle and seemingly insignificant overheads can actually matter. However, while these loop operations may be &ldquo;inexpensive&rdquo;, they&rsquo;re certainly not free.  The cost of 2-3 extra instructions for each iteration will add up quickly if you remember that the number of iterations here is in millions. The benefits do diminish progressively as the loop overhead becomes relatively smaller.</p>
 
 <p>Unrolling is another optimization that is almost entirely taken care of by compilers now, except in micro-kernels like ours where we prefer more control.</p>
 
@@ -1079,13 +1079,13 @@ for xo in 0..N/16:
 
 </figure></p>
 
-<h1 id="putting-it-together">Putting it together</h1>
+<h1 id="putting-it-together">Putting It together</h1>
 
-<p>The above steps cover some of the most commonly used transformations to speed up performance. They&rsquo;re usually combined in different ways to come up with more and more complex schedules to compute the same task.</p>
+<p>The above steps cover some of the most commonly-used transformations to speed up performance. They&rsquo;re usually combined in different ways to come up with more and more complex schedules to compute the same task.</p>
 
 <!-- I missed some final details on how even within the cache, we can try and fit data in multiple levels (L1, L2, L3 cache) which are progressively larger but slower. There is no explicit CPU instruction, even in assembly, that says "put this data in the cache". Instead, the kernel is designed so as to make this happen implicitly, with the knowledge of the CPU architecture. -->
 
-<p>Here&rsquo;s a schedule from Halide which is more carefully optimized.</p>
+<p>Here&rsquo;s a schedule from Halide that&rsquo;s more carefully optimized.</p>
 
 <pre><code class="language-cpp">    matrix_mul(x, y) += A(k, y) * B(x, k);
     out(x, y) = matrix_mul(x, y);
@@ -1127,9 +1127,9 @@ for xo in 0..N/16:
 
 </figure>
 
-<p>Finally, we&rsquo;re able to touch speeds of over 120 GFLOPs &ndash; respectably close to the peak performance of 160 GFLOPs, and matching production-level libraries like OpenBLAS. With similar high-performance array processing code for im2col, followed by gemm, the same convolution now runs in ~20ms.</p>
+<p>Finally, we&rsquo;re able to touch speeds of over 120 GFLOPs &ndash; respectably close to the peak performance of 160 GFLOPs, and matching production-level libraries like OpenBLAS. With similar fine-tuned code for im2col, followed by gemm, the same convolution now runs in ~20ms.  If you&rsquo;re interested in going deeper into this, try experimenting with different schedules of your own &ndash; while as an engineer I had always heard statements about caching, performance, etc., seeing their true effect can be rewarding and fun.</p>
 
-<p>Note that this im2col+gemm method is a popular general-purpose methods in most deep learning libraries. However, for specific commonly-used sizes, different architectures (GPU), and different operation parameters (like dilation, grouping, etc.), these libraries will again have more specialized implementations utilizing similar tricks &amp; assumptions specific to those cases. These kernels are built after a highly iterative process with trial and error. Programmers often have only an intuition of what should/shouldn&rsquo;t work well and/or must think of explanations based on the results. Sounds like a perfect match for deep learning research, right?</p>
+<p>Note that this im2col+gemm method is a popular general-purpose methods in most deep learning libraries. However, specialization is key &ndash; for specific commonly-used sizes, different architectures (GPU), and different operation parameters (like dilation, grouping, etc.), these libraries might again have more specialized implementations utilizing similar tricks or assumptions specific to those cases. These micro-kernels are built after a highly iterative process with trial and error. Programmers often have only an intuition of what should/shouldn&rsquo;t work well and/or must think of explanations based on the results. Sounds like a perfect match for deep learning research, right?</p>
 
     </div>
 
