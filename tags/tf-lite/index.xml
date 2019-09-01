@@ -21,8 +21,7 @@
 
 &lt;p&gt;&lt;span style=&#34;color:#5f6a6a&#34;&gt;&lt;em&gt;This post was featured on &lt;a href=&#34;https://heartbeat.fritz.ai/8-bit-quantization-and-tensorflow-lite-speeding-up-mobile-inference-with-low-precision-a882dfcafbbd&#34; target=&#34;_blank&#34;&gt;Heartbeat by Fritz&lt;/a&gt; and &lt;a href=&#34;http://rev.vu/3Nwed?utm_campaign=Issue&amp;amp;utm_content=share&amp;amp;utm_medium=email&amp;amp;utm_source=Deep+Learning+Weekly&#34; target=&#34;_blank&#34;&gt;DL Weekly&lt;/a&gt;&lt;/em&gt;&lt;/span&gt;
 &lt;br/&gt;
-&lt;br/&gt;
-&lt;div style=&#34;text-align: justify&#34;&gt;&lt;/p&gt;
+&lt;br/&gt;&lt;/p&gt;
 
 &lt;p&gt;Francois Chollet puts it concisely:
 &lt;blockquote class=&#34;twitter-tweet&#34; data-lang=&#34;en&#34;&gt;&lt;p lang=&#34;en&#34; dir=&#34;ltr&#34;&gt;- make it possible&lt;br&gt;- make it work&lt;br&gt;- make it efficient&lt;br&gt;- make it dependable and invisible&lt;br&gt;- move on to the next layer and never think about it again&lt;/p&gt;&amp;mdash; François Chollet (@fchollet) &lt;a href=&#34;https://twitter.com/fchollet/status/985607164461907968?ref_src=twsrc%5Etfw&#34;&gt;April 15, 2018&lt;/a&gt;&lt;/blockquote&gt;
@@ -253,8 +252,6 @@ conventional neural network to the quantized form, which is where TensorFlow&amp
 &lt;hr /&gt;
 
 &lt;h2 id=&#34;further-reading&#34;&gt;&lt;strong&gt;Further Reading&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;&lt;div style=&#34;text-align: left&#34;&gt;&lt;/p&gt;
 
 &lt;h4 id=&#34;quantization-in-tf-lite-1&#34;&gt;Quantization in TF-Lite&lt;/h4&gt;
 
