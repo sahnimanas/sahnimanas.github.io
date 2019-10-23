@@ -209,7 +209,7 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 &lt;figure&gt;
 
-&lt;img src=&#34;img/cache-line.svg&#34; width=&#34;70%&#34; /&gt;
+&lt;img src=&#34;img/cache-line.png&#34; width=&#34;70%&#34; /&gt;
 
 
 &lt;/figure&gt;
