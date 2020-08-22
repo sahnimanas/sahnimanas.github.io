@@ -1,40 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>EfficieNN on Manas Sahni</title>
-    <link>https://sahnimanas.github.io/post/</link>
-    <description>Recent content in EfficieNN on Manas Sahni</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 26 Aug 2019 21:57:19 +0530</lastBuildDate>
-    
-	    <atom:link href="https://sahnimanas.github.io/post/index.xml" rel="self" type="application/rss+xml" />
-    
+    <title>EfficieNN | Manas Sahni</title>
+    <link>/post/</link>
+      <atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <description>EfficieNN</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 26 Aug 2019 21:57:19 +0530</lastBuildDate>
+    <image>
+      <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <title>EfficieNN</title>
+      <link>/post/</link>
+    </image>
     
     <item>
       <title>Anatomy of a High-Speed Convolution</title>
-      <link>https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/</link>
+      <link>/post/anatomy-of-a-high-performance-convolution/</link>
       <pubDate>Mon, 26 Aug 2019 21:57:19 +0530</pubDate>
-      
-      <guid>https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/</guid>
-      <description>
-
-&lt;p&gt;On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &amp;ldquo;heavy&amp;rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over &lt;em&gt;2 seconds&lt;/em&gt; for a single layer!&lt;/p&gt;
-
+      <guid>/post/anatomy-of-a-high-performance-convolution/</guid>
+      <description>&lt;p&gt;On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &amp;ldquo;heavy&amp;rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over &lt;em&gt;2 seconds&lt;/em&gt; for a single layer!&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But what exactly is the black magic that these libraries use that we mere mortals don&amp;rsquo;t? How are they able to improve performance by 100x? What exactly does one do to &amp;ldquo;optimize&amp;rdquo; or accelerate neural networks operations? These are questions I often asked (and get asked) when talking about high-performance/efficient DNNs.&lt;/p&gt;
-
 &lt;p&gt;In this post, I&amp;rsquo;ll attempt to walk you through how a convolution layer is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &amp;ndash; a little of bit of algorithmic cleverness and a lot of careful tuning and exploitation of low-level architecture.&lt;/p&gt;
-
-&lt;p&gt;A lot of what I cover here is from the seminal paper &lt;a href=&#34;https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf&#34; target=&#34;_blank&#34;&gt;&lt;em&gt;&amp;ldquo;Anatomy of a high-performance matrix multiplication&amp;rdquo;&lt;/em&gt;&lt;/a&gt; by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from &lt;a href=&#34;https://cs.stanford.edu/people/shadjis/blas.html&#34; target=&#34;_blank&#34;&gt;Dr. Stefan Hadjis&lt;/a&gt; and &lt;a href=&#34;https://www.whatsacreel.net&#34; target=&#34;_blank&#34;&gt;Chris Rose&lt;/a&gt;.&lt;/p&gt;
-
+&lt;p&gt;A lot of what I cover here is from the seminal paper 
+&lt;a href=&#34;https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;&amp;ldquo;Anatomy of a high-performance matrix multiplication&amp;rdquo;&lt;/em&gt;&lt;/a&gt; by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from 
+&lt;a href=&#34;https://cs.stanford.edu/people/shadjis/blas.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dr. Stefan Hadjis&lt;/a&gt; and 
+&lt;a href=&#34;https://www.whatsacreel.net&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Chris Rose&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;naive-convolutions&#34;&gt;Naive Convolutions&lt;/h1&gt;
-
 &lt;blockquote&gt;
 &lt;p&gt;&amp;ldquo;Premature optimization is the root of all evil&amp;rdquo; &amp;ndash; Donald Knuth&lt;/p&gt;
 &lt;/blockquote&gt;
-
 &lt;p&gt;Before we go around optimizing things, let&amp;rsquo;s first get a handle on our baseline and bottlenecks. Here&amp;rsquo;s a naive numpy/for-loop convolution that you&amp;rsquo;d write in Deep Learning 101:&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;&#39;&#39;&#39;
 Convolve `input` with `kernel` to generate `output`
     input.shape = [input_channels, input_height, input_width]
@@ -51,52 +45,53 @@ for filter in 0..num_filters
                             kernel[filter, channel, k_h, k_w] * 
                             input[channel, out_h + k_h, out_w + k_w]
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;Yikes. That&amp;rsquo;s 6 nested &lt;code&gt;for&lt;/code&gt; loops for one conv (7 if you iterate over batches of multiple inputs). And we&amp;rsquo;re not yet looking at stride, dilation, or any other parameters. If I plug in here the sizes for, say the first layer of MobileNet, and run this in plain C, it takes a whopping &lt;em&gt;22 seconds&lt;/em&gt;! With the most aggressive compiler optimizations like &lt;code&gt;-O3&lt;/code&gt; or &lt;code&gt;-Ofast&lt;/code&gt;, it reduces to 2.2 seconds. But that&amp;rsquo;s still terribly slow for just the first layer.&lt;/p&gt;
-
 &lt;p&gt;What if I run the same layer using, say, Caffe? It took just 18ms on the same PC. That&amp;rsquo;s more than a 100x speedup! The entire network itself runs in ~100ms on my CPU.&lt;/p&gt;
-
 &lt;p&gt;What is the bottleneck and where should we begin to optimize?&lt;/p&gt;
-
 &lt;p&gt;The inner-most loop does 2 floating point operations (multiply &amp;amp; add), and for the sizes I used, it&amp;rsquo;s executed about 85.16 million times, i.e. this convolution requires 170 million floating point operations (MFLOPs).
 The peak performance of my CPU, according to Intel, is 80 &lt;em&gt;billion&lt;/em&gt; FLOPs per second, i.e. it could &lt;em&gt;theoretically&lt;/em&gt; finish the job in 0.002 seconds. Clearly, we&amp;rsquo;re nowhere near that and clearly, the raw processing capability is more than sufficient here.&lt;/p&gt;
-
 &lt;p&gt;The reason that the theoretical peak isn&amp;rsquo;t achieved (ever) is that memory accesses also take time &amp;ndash; it&amp;rsquo;s not enough to &lt;em&gt;process&lt;/em&gt; data quickly, if you can&amp;rsquo;t &lt;em&gt;get&lt;/em&gt; the data quickly. It turns out that the heavily-nested for-loops above make for very difficult data access patterns, which poorly utilize the cache.&lt;/p&gt;
-
-&lt;p&gt;As you&amp;rsquo;ll see, a recurring concern throughout the discussion will be how we&amp;rsquo;re accessing the data we&amp;rsquo;re operating on, and how that relates to the way it&amp;rsquo;s stored.
-&lt;!-- If you compare the number of arithmetic operations to the memory accesses, convolution does 100-1000 ops per byte of data -- this is also called the **arithmetic intensity** or the ops:bytes ratio. So,  --&gt;&lt;/p&gt;
-
+&lt;p&gt;As you&amp;rsquo;ll see, a recurring concern throughout the discussion will be how we&amp;rsquo;re accessing the data we&amp;rsquo;re operating on, and how that relates to the way it&amp;rsquo;s stored.&lt;/p&gt;
+&lt;!-- If you compare the number of arithmetic operations to the memory accesses, convolution does 100-1000 ops per byte of data -- this is also called the **arithmetic intensity** or the ops:bytes ratio. So,  --&gt;
 &lt;h1 id=&#34;some-prerequisites&#34;&gt;Some Prerequisites&lt;/h1&gt;
-
-&lt;h2 id=&#34;flop-s&#34;&gt;FLOP/s&lt;/h2&gt;
-
+&lt;h2 id=&#34;flops&#34;&gt;FLOP/s&lt;/h2&gt;
 &lt;p&gt;Our metric for &amp;ldquo;performance&amp;rdquo; or speed will be the throughput, measured in the number of &lt;strong&gt;FL&lt;/strong&gt;oating &lt;strong&gt;P&lt;/strong&gt;oint &lt;strong&gt;O&lt;/strong&gt;perations per &lt;strong&gt;S&lt;/strong&gt;econd, or FLOP/s. A bigger operation with more floating-point operations will naturally run slower, so FLOP/s rate allows a more consistent way to compare performance.&lt;/p&gt;
-
 &lt;p&gt;We can also use this to get an idea of how close we are to the peak performance of the CPU. On my laptop CPU:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;there are 2 phsyical cores&lt;/li&gt;
 &lt;li&gt;each core has a frequency of 2.5 GHz, or $2.5\times10^9$ CPU cycles per second&lt;/li&gt;
-&lt;li&gt;in each cycle, it can process 32 FLOPs (using AVX &amp;amp; FMA, more on this in a bit)
-&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;in each cycle, it can process 32 FLOPs (using AVX &amp;amp; FMA, more on this in a bit)&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32\frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. Similarly, for a single core, this number is 80 GFLOP/s.&lt;/p&gt;
-
 &lt;h2 id=&#34;storage-orders-and-row-major&#34;&gt;Storage orders and Row Major&lt;/h2&gt;
-
 &lt;p&gt;While we logically view matrices/images/tensors as multi-dimensional, they&amp;rsquo;re physically stored in a linear, one-dimensional computer memory. We have to define a convention which dictates how to unwrap these multiple dimensions to a linear storage, and vice versa.&lt;/p&gt;
-
 &lt;p&gt;Most modern DL libraries use a &lt;em&gt;row-major&lt;/em&gt; storage order. This means that consecutive elements of the same row are stored next to each other. More generally with multiple dimensions, row-major means the first dimension changes the slowest as you scan the memory linearly.&lt;/p&gt;
-
 &lt;p&gt;What about the ordering of the dimensions themselves? Usually for 4-dimensional tensors like in CNNs, you&amp;rsquo;ll hear of storage orders like NCHW, NHWC, etc. I&amp;rsquo;ll assume NCHW throughout this post &amp;ndash; if I have N blocks of C channels of HxW images, then all images with the same N are contigous; within that block all pixels of the same channel C are contigous, and so on.&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/storage-order.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/storage-order.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/storage-order.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
@@ -107,109 +102,161 @@ Like everywhere else in computer science, memory storage comes with a tradeoff b
 The various levels of cache (L1, L2, L3) represent increasingly faster but smaller memory, usually totalling only a few KB/MB. The RAM has much more capacity and more complex addressing, but is also orders of magnitude slower.
 
 While this is a vast subject, what&#39;s important to know for this discussion is that our naive implementation suffers majorly from poor data caching. Our goal will be to exploit the cache as much as possible -- but  --&gt;
-
 &lt;h2 id=&#34;halide&#34;&gt;Halide&lt;/h2&gt;
-
-&lt;p&gt;Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code. &lt;a href=&#34;https://halide-lang.org&#34; target=&#34;_blank&#34;&gt;Halide&lt;/a&gt; is an embedded language in C++ that helps abstract these concepts and is designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (&lt;em&gt;what&lt;/em&gt; to compute) and the schedule (&lt;em&gt;how/when&lt;/em&gt; to compute it). We can keep the algorithm fixed, and play around with different schedules.&lt;/p&gt;
-
+&lt;p&gt;Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code. 
+&lt;a href=&#34;https://halide-lang.org&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Halide&lt;/a&gt; is an embedded language in C++ that helps abstract these concepts and is designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (&lt;em&gt;what&lt;/em&gt; to compute) and the schedule (&lt;em&gt;how/when&lt;/em&gt; to compute it). We can keep the algorithm fixed, and play around with different schedules.&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;ll use Halide to represent these lower-level concepts, but you should be able to understand the intuitive function names enough to follow along.&lt;/p&gt;
-
 &lt;h1 id=&#34;from-convolution-to-gemm&#34;&gt;From Convolution to GEMM&lt;/h1&gt;
-
 &lt;p&gt;The naive convolution that we discussed above is slow already, and a more realistic implementation will only be further complicated by parameters like stride, dilation, padding, etc. We could continue using the basic conv as a working example but, as you&amp;rsquo;ll see, extracting maximum performance out of the computer requires many tricks &amp;ndash; carefully fine-tuning at multiple levels &amp;amp; exploting very specific knowledge of the computer architecture at hand. In other words, this is going to be a formidable task if we&amp;rsquo;re hoping to address all of the complexities.&lt;/p&gt;
-
 &lt;p&gt;Can we instead transform this into a problem that&amp;rsquo;s easier to solve? Perhaps matrix multiplication?&lt;/p&gt;
-
-&lt;p&gt;Matrix multiplication, or matmul, or &lt;strong&gt;Ge&lt;/strong&gt;neralized &lt;strong&gt;M&lt;/strong&gt;atrix &lt;strong&gt;M&lt;/strong&gt;ultiplication (&lt;strong&gt;GEMM&lt;/strong&gt;), is &lt;a href=&#34;https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/&#34; target=&#34;_blank&#34;&gt;at the heart of deep learning&lt;/a&gt;. It&amp;rsquo;s used in fully-connected layers, RNNs, etc., and can be used to implement convolutions too.&lt;/p&gt;
-
+&lt;p&gt;Matrix multiplication, or matmul, or &lt;strong&gt;Ge&lt;/strong&gt;neralized &lt;strong&gt;M&lt;/strong&gt;atrix &lt;strong&gt;M&lt;/strong&gt;ultiplication (&lt;strong&gt;GEMM&lt;/strong&gt;), is 
+&lt;a href=&#34;https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;at the heart of deep learning&lt;/a&gt;. It&amp;rsquo;s used in fully-connected layers, RNNs, etc., and can be used to implement convolutions too.&lt;/p&gt;
 &lt;p&gt;Conv is, after all, a dot-product of the filter with input patches. If we lay out the filter into a 2-D matrix and the input patches in another, then the multiplying these 2 matrices would compute the same dot product. And matrix multiplication &amp;ndash; unlike CNNs &amp;ndash; has been heavily studied and optimized over several decades, being a critical problem in many scientific domains.&lt;/p&gt;
-
 &lt;p&gt;The above laying out of the image patches into a matrix is called &lt;em&gt;&lt;strong&gt;im2col&lt;/strong&gt;&lt;/em&gt;, for image to column. We rearrange the image into columns of a matrix, so that each column corresponds to one patch where the conv filter is applied.&lt;/p&gt;
-
 &lt;p&gt;Consider this normal, direct 3x3 convolution:
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/direct-conv-im2col.png&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/direct-conv-im2col.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/direct-conv-im2col.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;p&gt;Below is the same operation implemented as a matrix multiplication. The right matrix is the result of im2col &amp;ndash; it has to be constructed by copying pixels from the original image. The left matrix has the conv weights, which are already stored this way in memory.
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/matrix-im2col.png&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/matrix-im2col.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/matrix-im2col.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;p&gt;Note that the matrix product gives us the conv output directly &amp;ndash; there is no need for an extra &amp;ldquo;conversion&amp;rdquo; to the original form.&lt;/p&gt;
-
 &lt;p&gt;I&amp;rsquo;ve shown each patch as independent here for visual clarity. However, in reality, there usually is some overlap between different image patches, and hence im2col incurs some memory duplication. The time taken to generate this im2col buffer and the inflated memory, will have to be offset by the speedup we achieve via GEMM.&lt;/p&gt;
-
 &lt;p&gt;With im2col, we have now transformed the convolution operation into a matrix multiplication. We can now plug in more general-purpose &amp;amp; popular linear algebra libraries like OpenBLAS, Eigen, etc. to take care of efficiently computing this matmul, riding on the back of decades of optimizations &amp;amp; careful fine-tuning.&lt;/p&gt;
-
 &lt;p&gt;We&amp;rsquo;ll need some pretty serious speedups if we&amp;rsquo;re going to justify the extra work and memory resulting from the im2col transform, so let&amp;rsquo;s see how these libraries might be achieving that. This also gives a good intro to some general approaches when optimizing at the system level.&lt;/p&gt;
-
 &lt;div class=&#34;alert alert-note&#34;&gt;
   &lt;div&gt;
-    While this idea of convolution-as-GEMM existed in different forms before, Caffe was one of the first deep-learning libraries to use this method for general convs on CPU &amp;amp; GPU and show a major speedup. &lt;a href=&#34;https://github.com/Yangqing/caffe/wiki/Convolution-in-Caffe:-a-memo&#34; target=&#34;_blank&#34;&gt;Here&amp;rsquo;s&lt;/a&gt; a very interesting read from Yanqing Jia himself (creator of Caffe) on the origins of this decision from a thesis deadline, and thoughts on &amp;ldquo;temporary&amp;rdquo; solutions.
+    While this idea of convolution-as-GEMM existed in different forms before, Caffe was one of the first deep-learning libraries to use this method for general convs on CPU &amp;amp; GPU and show a major speedup. &lt;a href=&#34;https://github.com/Yangqing/caffe/wiki/Convolution-in-Caffe:-a-memo&#34;&gt;Here&amp;rsquo;s&lt;/a&gt; a very interesting read from Yanqing Jia himself (creator of Caffe) on the origins of this decision from a thesis deadline, and thoughts on &amp;ldquo;temporary&amp;rdquo; solutions.
   &lt;/div&gt;
 &lt;/div&gt;
-
 &lt;h1 id=&#34;speeding-up-the-gemm&#34;&gt;Speeding up the GEMM&lt;/h1&gt;
-
 &lt;h2 id=&#34;naive&#34;&gt;Naive&lt;/h2&gt;
-
-&lt;p&gt;Through the rest of this post, I&amp;rsquo;ll assume the GEMM is performed as $C_{M \times N} \mathrel{+}= A_{M \times K} * B_{K \times N}$ &lt;br /&gt;
+&lt;p&gt;Through the rest of this post, I&amp;rsquo;ll assume the GEMM is performed as $C_{M \times N} \mathrel{+}= A_{M \times K} * B_{K \times N}$&lt;br&gt;
 As before, first let&amp;rsquo;s time the basic, textbook matrix multiplication:&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;for i in 0..M:
     for j in 0..N:
         for k in 0..K:
             C[i, j] += A[i, k] * B[k, j]
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;Or in Halide:&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;Halide::Buffer C, A, B;
 Halide::Var x, y;
 
 C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of automatically
 &lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The inner most line does 2 floating point ops (multiply &amp;amp; add) and is performed $M*N*K$ times, so the number of FLOPs for this GEMM is $2MNK$.&lt;/p&gt;
-
+&lt;p&gt;The inner most line does 2 floating point ops (multiply &amp;amp; add) and is performed $M&lt;em&gt;N&lt;/em&gt;K$ times, so the number of FLOPs for this GEMM is $2MNK$.&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s measure its performance for various matrix sizes:
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/plot-naive.png&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-naive.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-naive.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;p&gt;We barely reach 10% of peak performance! While we&amp;rsquo;ll look into ways to make the computation faster, a recurring theme will be that it&amp;rsquo;s not enough to just &lt;em&gt;compute&lt;/em&gt; the data fast if we can&amp;rsquo;t &lt;em&gt;get&lt;/em&gt; the data fast. As memory becomes a bigger and bigger issue for larger matrices, the performance continues to gradually dip. The sharp drop you see towards the end? That represents the point when the matrices become too big to fit in the cache and the throughput suddenly drops &amp;ndash; you can see the system choking.&lt;/p&gt;
-
 &lt;h2 id=&#34;caching&#34;&gt;Caching&lt;/h2&gt;
-
 &lt;p&gt;The RAM is a large but slow storage. CPU caches are orders of magnitude faster, but much smaller, so using them correctly is critical. But there is no explicit instruction that says &amp;ldquo;load this data to cache&amp;rdquo;. It&amp;rsquo;s a process automatically managed by the CPU.&lt;/p&gt;
-
 &lt;p&gt;Every time we fetch data from the main memory, the CPU automatically loads it and its neighboring memory into the cache, hoping to utilize locality of reference.&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/cache-line.png&#34; width=&#34;70%&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/cache-line.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/cache-line.png&#34; alt=&#34;&#34; width=&#34;70%&#34; &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
@@ -218,15 +265,33 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/naive-traversal.svg&#34; width=&#34;80%&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/naive-traversal.svg&#34; &gt;
+
+
+  &lt;img src=&#34;./img/naive-traversal.svg&#34; alt=&#34;&#34; width=&#34;80%&#34; &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;p&gt;Their storage is also row-major, so once we find &lt;code&gt;A[i, k]&lt;/code&gt;, the next element in the row, &lt;code&gt;A[i, k+1]&lt;/code&gt; is already cached. Cool. But see what happens for $B$ :&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;the next element of the column isn&amp;rsquo;t present in the cache &amp;ndash; we get a cache miss and the CPU stalls while the data is fetched&lt;/li&gt;
 &lt;li&gt;once fetched, the cache also gets filled with other elements in the same row of $B$. We won&amp;rsquo;t actually use them, so they&amp;rsquo;ll be evicted soon. A few iterations later when they&amp;rsquo;re actually needed, we&amp;rsquo;ll be working to fetch them again. We&amp;rsquo;re &lt;strong&gt;polluting&lt;/strong&gt; the cache with values we don&amp;rsquo;t need.&lt;/li&gt;
@@ -235,30 +300,63 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/cache-pollution.png&#34; width=&#34;50%&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/cache-pollution.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/cache-pollution.png&#34; alt=&#34;&#34; width=&#34;50%&#34; &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;p&gt;We need to rework our loops to exploit this caching ability instead. If data is being read, we might as well make use of it. This brings us to the first change we&amp;rsquo;ll make: &lt;strong&gt;loop reordering&lt;/strong&gt;.&lt;/p&gt;
-
 &lt;p&gt;Let&amp;rsquo;s reorder the loops from &lt;code&gt;i,j,k&lt;/code&gt; to &lt;code&gt;i,k,j&lt;/code&gt;:&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;for i in 0..M:
     for k in 0..K:
         for j in 0..N:
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;Our answer is still correct because the order of multiplications/additions doesn&amp;rsquo;t matter. The traversal order will now look like this&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/reordered.svg&#34; width=&#34;80%&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/reordered.svg&#34; &gt;
+
+
+  &lt;img src=&#34;./img/reordered.svg&#34; alt=&#34;&#34; width=&#34;80%&#34; &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
@@ -268,21 +366,35 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/plot-reorder.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-reorder.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-reorder.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;tiling&#34;&gt;Tiling&lt;/h2&gt;
-
 &lt;p&gt;To further improve upon reordering, there&amp;rsquo;s one more caching issue we need to consider.&lt;/p&gt;
-
 &lt;p&gt;For each row of $A$, we were looping over the entirety of $B$. With each step over B, we&amp;rsquo;ll load some of its new columns and evict some older ones from the cache. When we get to the next row of A, we start all over again from the first columns. We&amp;rsquo;re repeatedly adding and removing the same data from the cache, or &lt;strong&gt;thrashing&lt;/strong&gt; it.&lt;/p&gt;
-
 &lt;p&gt;The thrashing wouldn&amp;rsquo;t occur if all our data could fit in the cache. If only we were working with smaller matrices, they could happily live together without getting evicted repeatedly. Thankfully for us, we can break down matrix multiplication over submatrices. To compute a small $r\times c$ tile of $C$, we only need $r$ rows of $A$ and $c$ columns of $B$. Let&amp;rsquo;s break $C$ into tiles of 6x16.&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;C(x, y) += A(k, y) * B(x, k);
 
 C.update()
@@ -298,28 +410,41 @@ for xo in 0..N/16:
                     C(...) = ...
 */
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;We&amp;rsquo;ve broken the x,y dimensions into an outer &lt;code&gt;xo,yo&lt;/code&gt; and inner &lt;code&gt;xi,yi&lt;/code&gt;. We&amp;rsquo;ll spend our efforts optimizing a &lt;em&gt;micro-kernel&lt;/em&gt; for the smaller 6x16 block (marked by &lt;code&gt;xi,yi&lt;/code&gt;), and run that micro-kernel over all the blocks (iterated by &lt;code&gt;xo,yo&lt;/code&gt;).&lt;/p&gt;
-
-&lt;h2 id=&#34;vectorization-fma&#34;&gt;Vectorization &amp;amp; FMA&lt;/h2&gt;
-
+&lt;h2 id=&#34;vectorization--fma&#34;&gt;Vectorization &amp;amp; FMA&lt;/h2&gt;
 &lt;p&gt;Most modern CPUs support &lt;strong&gt;SIMD&lt;/strong&gt;, or &lt;strong&gt;S&lt;/strong&gt;ingle &lt;strong&gt;I&lt;/strong&gt;nstruction &lt;strong&gt;M&lt;/strong&gt;ultiple &lt;strong&gt;D&lt;/strong&gt;ata. As the name suggests, SIMD can be used to do the same operation/instruction (like add, multiply, etc.) on multiple values simultaneously, in the same CPU cycle. If we can run SIMD instructions on say 4 data points at a time, that&amp;rsquo;s a 4x speedup straightaway.
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/simd.png&#34; width=&#34;75%&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/simd.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/simd.png&#34; alt=&#34;&#34; width=&#34;75%&#34; &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;p&gt;So when we calculated the peak speed of the processor, we &lt;em&gt;sort of&lt;/em&gt; cheated and were instead referring to this vectorized performance. This is of great use for data like vectors, where we have to apply the same instruction to every vector element. But we still have to design our kernel to exploit this properly.&lt;/p&gt;
-
 &lt;p&gt;The second &amp;ldquo;hack&amp;rdquo; we used while calculating the peak FLOPs was &lt;strong&gt;FMA&lt;/strong&gt; &amp;ndash; &lt;strong&gt;F&lt;/strong&gt;used &lt;strong&gt;M&lt;/strong&gt;ultiply-&lt;strong&gt;A&lt;/strong&gt;dd. While multiplying and adding are counted as 2 separate floating-point operations, they&amp;rsquo;re so common that dedicated hardware units are available that &lt;em&gt;fuse&lt;/em&gt; the 2 and perform them as a single instruction. Using this is usually handled by the compiler.&lt;/p&gt;
-
 &lt;p&gt;On Intel CPUs, we can use SIMD (called AVX &amp;amp; SSE) for processing up to 8 floating-point numbers in a single instruction. Compiler optimizations will often be able to identify vectorization opportunities on their own, but we&amp;rsquo;ll take things in our own hands just to be sure.&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -339,17 +464,33 @@ for xo in 0..N/16:
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/plot-vector.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-vector.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-vector.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;threading&#34;&gt;Threading&lt;/h2&gt;
-
 &lt;p&gt;Up until now we&amp;rsquo;ve only been using one CPU core. We have multiple cores available, and each core can physically execute multiple instructions at the same time. A program can divide itself into multiple threads, and each thread can run on a separate core.&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -366,27 +507,40 @@ for xo in 0..N/16 in steps of 16:
                     C(...) = ...
 */
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;You might notice that the performance actually drops for very small sizes, because with small workloads, the threads spend less time working and more time synchronizing with each other. There are a lot of other such issues with respect to threading that could warrant another deep dive on its own.&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/plot-parallel.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-parallel.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-parallel.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;unrolling&#34;&gt;Unrolling&lt;/h2&gt;
-
 &lt;p&gt;Loops let us avoid the pain of writing the same line over and over again, while introducing a little extra work like checking for loop termination, updating the loop counters, pointer arithmetic, etc. If instead we manually write out the repeated loop statements and &lt;em&gt;unroll&lt;/em&gt; the loop, we can reduce this overhead. For instance, instead of 8 iterations of 1 statement, we could run 2 iterations of 4 statements.&lt;/p&gt;
-
 &lt;p&gt;I initially found it surprising that such fickle and seemingly insignificant overheads can actually matter. However, while these loop operations may be &amp;ldquo;inexpensive&amp;rdquo;, they&amp;rsquo;re certainly not free.  The cost of 2-3 extra instructions for each iteration will add up quickly if you remember that the number of iterations here is in millions. The benefits do diminish progressively as the loop overhead becomes relatively smaller.&lt;/p&gt;
-
 &lt;p&gt;Unrolling is another optimization that is almost entirely taken care of by compilers now, except in micro-kernels like ours where we prefer more control.&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -409,26 +563,40 @@ for xo in 0..N/16:
             C(xi+8:xi+16, yi+5)
 */
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;We&amp;rsquo;re now able to touch speeds up to 60 GFLOP/s.
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;img/plot-unroll.png&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-unroll.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-unroll.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
 &lt;h1 id=&#34;putting-it-together&#34;&gt;Putting It together&lt;/h1&gt;
-
 &lt;p&gt;The above steps cover some of the most commonly-used transformations to speed up performance. They&amp;rsquo;re usually combined in different ways to come up with more and more complex schedules to compute the same task.&lt;/p&gt;
-
 &lt;!-- I missed some final details on how even within the cache, we can try and fit data in multiple levels (L1, L2, L3 cache) which are progressively larger but slower. There is no explicit CPU instruction, even in assembly, that says &#34;put this data in the cache&#34;. Instead, the kernel is designed so as to make this happen implicitly, with the knowledge of the CPU architecture. --&gt;
-
 &lt;p&gt;Here&amp;rsquo;s a schedule from Halide that&amp;rsquo;s more carefully optimized.&lt;/p&gt;
-
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    matrix_mul(x, y) += A(k, y) * B(x, k);
     out(x, y) = matrix_mul(x, y);
 
@@ -449,9 +617,7 @@ for xo in 0..N/16:
         .unroll(y)
         .unroll(k, 2);
 &lt;/code&gt;&lt;/pre&gt;
-
 &lt;p&gt;In summary, it does this:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;Split &lt;code&gt;out&lt;/code&gt; into tiles of 32x24. Further split each tile into 8x24 sub-tiles&lt;/li&gt;
 &lt;li&gt;Compute the 8x24 matmul in a temporary buffer (&lt;code&gt;matrix_mul&lt;/code&gt;), with the similar reordering, vectorization, and unrolling&lt;/li&gt;
@@ -462,148 +628,147 @@ for xo in 0..N/16:
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;img/plot-halide.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/plot-halide.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/plot-halide.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;p&gt;Finally, we&amp;rsquo;re able to touch speeds of over 120 GFLOPs &amp;ndash; respectably close to the peak performance of 160 GFLOPs, and matching production-level libraries like OpenBLAS. With similar fine-tuned code for im2col, followed by gemm, the same convolution now runs in ~20ms.  If you&amp;rsquo;re interested in going deeper into this, try experimenting with different schedules of your own &amp;ndash; while as an engineer I had always heard statements about caching, performance, etc., seeing their true effect can be rewarding and fun.&lt;/p&gt;
-
 &lt;p&gt;Note that this im2col+gemm method is a popular general-purpose methods in most deep learning libraries. However, specialization is key &amp;ndash; for specific commonly-used sizes, different architectures (GPU), and different operation parameters (like dilation, grouping, etc.), these libraries might again have more specialized implementations utilizing similar tricks or assumptions specific to those cases. These micro-kernels are built after a highly iterative process with trial and error. Programmers often have only an intuition of what should/shouldn&amp;rsquo;t work well and/or must think of explanations based on the results. Sounds like a perfect match for deep learning research, right?&lt;/p&gt;
 </description>
     </item>
     
     <item>
       <title>Making Neural Nets Work With Low Precision</title>
-      <link>https://sahnimanas.github.io/post/quantization-in-tflite/</link>
+      <link>/post/quantization-in-tflite/</link>
       <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
-      
-      <guid>https://sahnimanas.github.io/post/quantization-in-tflite/</guid>
-      <description>
-
-&lt;p&gt;&lt;span style=&#34;color:#5f6a6a&#34;&gt;&lt;em&gt;This post was featured on &lt;a href=&#34;https://heartbeat.fritz.ai/8-bit-quantization-and-tensorflow-lite-speeding-up-mobile-inference-with-low-precision-a882dfcafbbd&#34; target=&#34;_blank&#34;&gt;Heartbeat by Fritz&lt;/a&gt; and &lt;a href=&#34;http://rev.vu/3Nwed?utm_campaign=Issue&amp;amp;utm_content=share&amp;amp;utm_medium=email&amp;amp;utm_source=Deep+Learning+Weekly&#34; target=&#34;_blank&#34;&gt;DL Weekly&lt;/a&gt;&lt;/em&gt;&lt;/span&gt;
+      <guid>/post/quantization-in-tflite/</guid>
+      <description>&lt;p&gt;&lt;span style=&#34;color:#5f6a6a&#34;&gt;&lt;i&gt;This post was featured on 
+&lt;a href=&#34;https://heartbeat.fritz.ai/8-bit-quantization-and-tensorflow-lite-speeding-up-mobile-inference-with-low-precision-a882dfcafbbd&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heartbeat by Fritz&lt;/a&gt; and 
+&lt;a href=&#34;http://rev.vu/3Nwed?utm_campaign=Issue&amp;amp;utm_content=share&amp;amp;utm_medium=email&amp;amp;utm_source=Deep&amp;#43;Learning&amp;#43;Weekly&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;DL Weekly&lt;/a&gt;&lt;/i&gt;&lt;/span&gt;
 &lt;br/&gt;
 &lt;br/&gt;&lt;/p&gt;
-
-&lt;p&gt;Francois Chollet puts it concisely:
+&lt;p&gt;Francois Chollet puts it concisely:&lt;/p&gt;
 &lt;blockquote class=&#34;twitter-tweet&#34; data-lang=&#34;en&#34;&gt;&lt;p lang=&#34;en&#34; dir=&#34;ltr&#34;&gt;- make it possible&lt;br&gt;- make it work&lt;br&gt;- make it efficient&lt;br&gt;- make it dependable and invisible&lt;br&gt;- move on to the next layer and never think about it again&lt;/p&gt;&amp;mdash; François Chollet (@fchollet) &lt;a href=&#34;https://twitter.com/fchollet/status/985607164461907968?ref_src=twsrc%5Etfw&#34;&gt;April 15, 2018&lt;/a&gt;&lt;/blockquote&gt;
-&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;&lt;/p&gt;
-
-&lt;p&gt;For many deep learning problems, we&amp;rsquo;re finally starting with the “make it efficient” stage. We had been stuck at the first two stages for many decades where speed and efficiency weren&amp;rsquo;t nearly as important as getting things to work in the first place. So, the question of how precise our calculations need to be – and whether we can manage with lower precision – wasn&amp;rsquo;t often asked. However, now that neural networks are good enough at many problems to be of production-grade or better, this question has risen again. And the answers suggest we could do with low(er) precision, causing what may soon be a paradigm shift in mobile-optimized AI. This post talks about the concept of quantized inference, and how it works in &lt;a href=&#34;https://www.tensorflow.org/mobile/tflite/&#34; target=&#34;_blank&#34;&gt;TensorFlow-Lite&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;sub&gt;&lt;em&gt;&lt;strong&gt;TL;DR just tell me how to quantize my model&lt;/strong&gt;&lt;/em&gt;: Here&amp;rsquo;s a &lt;a href=&#34;https://www.tensorflow.org/performance/quantization&#34; target=&#34;_blank&#34;&gt;tutorial&lt;/a&gt; from TensorFlow with code&lt;/sub&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;details&gt;
- &lt;summary&gt; &lt;big&gt; Table of Contents (click to expand) &lt;/big&gt; &lt;/summary&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;/p&gt;
-
-&lt;!-- 
-&gt; [What is low-precision?](#what-is-low-precision) &lt;br/&gt;
-&gt; [Why do we care?](#why-do-we-care) &lt;br/&gt;
-&gt; [Why does it work?](#why-does-it-work) &lt;br/&gt;
-&gt; [**Quantization in TF-Lite**](#quantization-in-tf-lite) &lt;br/&gt;
-&gt; -- [Floating point vs Fixed-point](#floating-point-vs-fixed-point) &lt;br/&gt;
-&gt; -- [Quantization scheme](#quantization-scheme) &lt;br/&gt;
-&gt; -- [A typical quantized layer](#a-typical-quantized-layer) &lt;br/&gt;
-&gt; -- [&#34;Fake&#34; Quantization](#%22fake%22-quantization) &lt;br/&gt;
-&gt; -- [What&#39;s next](#whats-next) &lt;br/&gt;
-&gt; [Further Reading](#further-reading) &lt;br/&gt; --&gt;
-
-&lt;p&gt;&lt;/details&gt;&lt;/p&gt;
-
+&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;
+&lt;p&gt;For many deep learning problems, we&amp;rsquo;re finally starting with the “make it efficient” stage. We had been stuck at the first two stages for many decades where speed and efficiency weren&amp;rsquo;t nearly as important as getting things to work in the first place. So, the question of how precise our calculations need to be – and whether we can manage with lower precision – wasn&amp;rsquo;t often asked. However, now that neural networks are good enough at many problems to be of production-grade or better, this question has risen again. And the answers suggest we could do with low(er) precision, causing what may soon be a paradigm shift in mobile-optimized AI. This post talks about the concept of quantized inference, and how it works in 
+&lt;a href=&#34;https://www.tensorflow.org/mobile/tflite/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;TensorFlow-Lite&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;sub&gt;&lt;strong&gt;TL;DR just tell me how to quantize my model&lt;/strong&gt;: Here&amp;rsquo;s a 
+&lt;a href=&#34;https://www.tensorflow.org/performance/quantization&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;tutorial&lt;/a&gt; from TensorFlow with code&lt;/sub&gt;&lt;/p&gt;
 &lt;h2 id=&#34;what-is-low-precision&#34;&gt;What is low-precision?&lt;/h2&gt;
-
-&lt;hr /&gt;
-
+&lt;hr&gt;
 &lt;p&gt;Computers can only use a finite number of bits to represent infinite real numbers. How accurately we can represent them is decided by how many bits we use – with 32-bit floating point being the default for most applications, including deep learning. It turns out that DNNs can work with smaller datatypes, with less precision, such as 8-bit integers. Roughly speaking, we&amp;rsquo;re trying to work with a number line looking closer to the sparse one on the bottom. The numbers are quantized, i.e. discretized to some specific values, which we can then represent using integers instead of floating-point numbers. To be more precise (no pun), we&amp;rsquo;ll use 8-bit fixed-point representation, which I&amp;rsquo;ll get back to in a while.&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/densesparse.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/quantization-in-tflite/densesparse.png&#34; &gt;
+
+
+  &lt;img src=&#34;/post/quantization-in-tflite/densesparse.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;why-do-we-care&#34;&gt;Why do we care?&lt;/h2&gt;
-
-&lt;hr /&gt;
-
+&lt;hr&gt;
 &lt;p&gt;Supporting inference with quantized types in any ML framework like Caffe, TensorFlow, etc. would require us to rework significant parts of the library&amp;rsquo;s design, as well as re-implement most layers. Yet, there are several reasons that make the gains worth this effort:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;Arithmetic with lower bit-depth is faster, assuming the hardware supports it. Even though floating-point computation is no longer “slower” than integer on modern CPUs, operations with 32-bit floating point will almost always be slower than, say, 8-bit integers.&lt;/li&gt;
 &lt;li&gt;In moving from 32-bits to 8-bits, we get (almost) 4x reduction in memory straightaway. Lighter deployment models mean they hog lesser storage space, are easier to share over smaller bandwidths, easier to update, etc.&lt;/li&gt;
 &lt;li&gt;Lower bit-widths also mean that we can squeeze more data in the same caches/registers. This means we can reduce how often we access things from RAM, which is usually consumes a lot of time and power.&lt;/li&gt;
-&lt;li&gt;Floating point arithmetic is &lt;a href=&#34;https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/&#34; target=&#34;_blank&#34;&gt;hard&lt;/a&gt; – which is why it may not always be supported on microcontrollers on some ultra low-power embedded devices, such as drones, watches, or IoT devices. Integer support, on the other hand, is readily available.&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;Floating point arithmetic is 
+&lt;a href=&#34;https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;hard&lt;/a&gt; – which is why it may not always be supported on microcontrollers on some ultra low-power embedded devices, such as drones, watches, or IoT devices. Integer support, on the other hand, is readily available.&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+You can see why all of this sounds like great news for someone interested in deep learning applications on mobiles or embedded devices. Deep learning researchers are now finding ways to train models that work better with quantization, ML library developers are building extensive framework support for quantized inference, and tech giants are throwing their weight behind 
+&lt;a href=&#34;https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;dedicated hardware for AI&lt;/a&gt; with emphasis on quantization support (
+&lt;a href=&#34;https://cloud.google.com/post/big-data/2017/05/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Google&lt;/a&gt;, 
+&lt;a href=&#34;https://www.androidauthority.com/huawei-announces-kirin-970-797788/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Huawei&lt;/a&gt;, 
+&lt;a href=&#34;https://www.cnet.com/news/microsoft-project-brainwave-speeds-ai-with-fpga-chips-on-azure-build-conference/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Microsoft&lt;/a&gt;, 
+&lt;a href=&#34;https://www.theverge.com/2018/4/18/17254236/facebook-designing-own-chips-ai-report&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Facebook&lt;/a&gt;, 
+&lt;a href=&#34;https://www.theverge.com/2017/9/13/16300464/apple-iphone-x-ai-neural-engine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Apple&lt;/a&gt;… ). Even without such dedicated hardware, DSP chips on modern smartphone chipsets have instruction sets well-suited for this kind of integer computation.&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt;You can see why all of this sounds like great news for someone interested in deep learning applications on mobiles or embedded devices. Deep learning researchers are now finding ways to train models that work better with quantization, ML library developers are building extensive framework support for quantized inference, and tech giants are throwing their weight behind &lt;a href=&#34;https://www.theverge.com/2017/10/19/16502538/mobile-ai-chips-apple-google-huawei-qualcomm&#34; target=&#34;_blank&#34;&gt;dedicated hardware for AI&lt;/a&gt; with emphasis on quantization support (&lt;a href=&#34;https://cloud.google.com/post/big-data/2017/05/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu&#34; target=&#34;_blank&#34;&gt;Google&lt;/a&gt;, &lt;a href=&#34;https://www.androidauthority.com/huawei-announces-kirin-970-797788/&#34; target=&#34;_blank&#34;&gt;Huawei&lt;/a&gt;, &lt;a href=&#34;https://www.cnet.com/news/microsoft-project-brainwave-speeds-ai-with-fpga-chips-on-azure-build-conference/&#34; target=&#34;_blank&#34;&gt;Microsoft&lt;/a&gt;, &lt;a href=&#34;https://www.theverge.com/2018/4/18/17254236/facebook-designing-own-chips-ai-report&#34; target=&#34;_blank&#34;&gt;Facebook&lt;/a&gt;, &lt;a href=&#34;https://www.theverge.com/2017/9/13/16300464/apple-iphone-x-ai-neural-engine&#34; target=&#34;_blank&#34;&gt;Apple&lt;/a&gt;… ). Even without such dedicated hardware, DSP chips on modern smartphone chipsets have instruction sets well-suited for this kind of integer computation.
-&lt;br /&gt;
-&lt;br /&gt;
-&lt;/p&gt;
-
+&lt;hr&gt;
 &lt;h2 id=&#34;why-does-it-work&#34;&gt;Why does it work?&lt;/h2&gt;
-
-&lt;hr /&gt;
-
 &lt;p&gt;There has been an increasing amount of work in quantizing neural networks, and they broadly point to two reasons. First, DNNs are known to be quite robust to noise and other small perturbations once trained. This means even if we subtly round-off numbers, we can still expect a reasonably accurate answer. Moreover, the weights and activations by a particular layer often tend to lie in a small range, which can be estimated beforehand. This means we don&amp;rsquo;t need the ability to store 10&lt;sup&gt;6&lt;/sup&gt; and 10&lt;sup&gt;-6&lt;/sup&gt; in the same data type - allowing us to concentrate our precicious fewer bits within a smaller range, say -3 to +3. As you may imagine, it&amp;rsquo;ll be crucial to accurately know this smaller range - a recurring theme you&amp;rsquo;ll see below.&lt;/p&gt;
-
 &lt;p&gt;So, if done right, quantization only causes a small loss of precision which usually doesn&amp;rsquo;t change the output significantly. Finally, small losses in accuracy can be recovered by retraining our models to adjust to quantization.&lt;/p&gt;
-
 &lt;p&gt;You can see an example below of the weights in a layer from AlexNet, with a histogram of actual weights on the left. Notice how most values lie in a small range. We can quantize, i.e. &lt;em&gt;discretize&lt;/em&gt; the range to only record some of these values accurately, and round-off the rest. The right sub-graph shows one such quantization using 4-bits (16 discrete values). You can see how we can improve this with a less stringent bit-length of say, 8-bits.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/weights_quant.png&#34; alt=&#34;weights_quant&#34; /&gt;
-&lt;em&gt;&lt;sub&gt;Source: &lt;a href=&#34;#deep_compression&#34;&gt;Han et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Why not train in lower precision directly, you ask? Well, it&amp;rsquo;s not impossible but we&amp;rsquo;re yet to iron out many kinks. Models are trained using very tiny gradient updates, for which we &lt;em&gt;do&lt;/em&gt; need high precision. However, there have been a plethora of experiments with quantization &amp;ndash; we have seen results with quantization in training (&lt;a href=&#34;#wage&#34;&gt;1&lt;/a&gt;, &lt;a href=&#34;#courbariaux&#34;&gt;2&lt;/a&gt;, &lt;a href=&#34;#dl_with_limited_precision&#34;&gt;3&lt;/a&gt;), or with more intricate methods that use variable-precision, methods that replace multiplications with &lt;a href=&#34;#xnor&#34;&gt;bit-wise ops&lt;/a&gt;, &lt;a href=&#34;#ternary&#34;&gt;ternary&lt;/a&gt; or even &lt;a href=&#34;#binary&#34;&gt;binary weights&lt;/a&gt;! However, many of them have been restricted to experimental studies, or still have ways to go from being widely applicable. For the remainder of this post, I&amp;rsquo;ll be talking about the more common task of inference using 8-bit fixed point quantization in TensorFlow Lite, as described in &lt;a href=&#34;#gemmlowp_paper&#34;&gt;this paper&lt;/a&gt;.&lt;/p&gt;
-
-&lt;hr /&gt;
-
+&lt;p&gt;&lt;img src=&#34;/post/quantization-in-tflite/weights_quant.png&#34; alt=&#34;weights_quant&#34;&gt;
+&lt;em&gt;&lt;sub&gt;Source: 
+&lt;a href=&#34;#deep_compression&#34;&gt;Han et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Why not train in lower precision directly, you ask? Well, it&amp;rsquo;s not impossible but we&amp;rsquo;re yet to iron out many kinks. Models are trained using very tiny gradient updates, for which we &lt;em&gt;do&lt;/em&gt; need high precision. However, there have been a plethora of experiments with quantization &amp;ndash; we have seen results with quantization in training (
+&lt;a href=&#34;#wage&#34;&gt;1&lt;/a&gt;, 
+&lt;a href=&#34;#courbariaux&#34;&gt;2&lt;/a&gt;, 
+&lt;a href=&#34;#dl_with_limited_precision&#34;&gt;3&lt;/a&gt;), or with more intricate methods that use variable-precision, methods that replace multiplications with 
+&lt;a href=&#34;#xnor&#34;&gt;bit-wise ops&lt;/a&gt;, 
+&lt;a href=&#34;#ternary&#34;&gt;ternary&lt;/a&gt; or even 
+&lt;a href=&#34;#binary&#34;&gt;binary weights&lt;/a&gt;! However, many of them have been restricted to experimental studies, or still have ways to go from being widely applicable. For the remainder of this post, I&amp;rsquo;ll be talking about the more common task of inference using 8-bit fixed point quantization in TensorFlow Lite, as described in 
+&lt;a href=&#34;#gemmlowp_paper&#34;&gt;this paper&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
 &lt;h1 id=&#34;quantization-in-tf-lite&#34;&gt;Quantization in TF-Lite&lt;/h1&gt;
-
 &lt;h2 id=&#34;floating-point-vs-fixed-point&#34;&gt;Floating-point vs Fixed-point&lt;/h2&gt;
-
 &lt;p&gt;First, a quick primer on floating/fixed-point representation. Floating point uses a mantissa and an exponent to represent real values – and both can vary. The exponent allows for representing a wide range of numbers, and the mantissa gives the precision. The decimal point can &lt;em&gt;“float”&lt;/em&gt;, i.e. appear anywhere relative to the digits.&lt;/p&gt;
-
 &lt;p&gt;If we replace the exponent by a fixed scaling factor, we can use integers to represent the value of a number relative to (i.e. an integer multiple of) this constant. The decimal point&amp;rsquo;s position is now &lt;em&gt;&amp;ldquo;fixed&amp;rdquo;&lt;/em&gt; by the scaling factor. Going back to the number line example, the value of the scaling factor determines the smallest distance between 2 ticks on the line, and the number of such ticks is decided by how many bits we use to represent the integer (for 8-bit fixed point, 256 or 2&lt;sup&gt;8&lt;/sup&gt;). We can use these to tradeoff between range and precision. Any value that is not an exact multiple of the constant will get rounded to the nearest point.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/floatfixed.png&#34; alt=&#34;floatfixed&#34; /&gt;
-&lt;em&gt;&lt;sub&gt;Source: &lt;a href=&#34;#courbariaux&#34;&gt;Courbariaux et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
-
+&lt;p&gt;&lt;img src=&#34;/post/quantization-in-tflite/floatfixed.png&#34; alt=&#34;floatfixed&#34;&gt;
+&lt;em&gt;&lt;sub&gt;Source: 
+&lt;a href=&#34;#courbariaux&#34;&gt;Courbariaux et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;quantization-scheme&#34;&gt;Quantization Scheme&lt;/h2&gt;
-
 &lt;p&gt;Unlike floating point, there is no universal standard for fixed-point numbers, and is instead domain-specific. Our quantization scheme (mapping between real &amp;amp; quantized numbers) requires the following:&lt;/p&gt;
-
 &lt;p&gt;&lt;strong&gt;1. It should be linear (or affine).&lt;/strong&gt;&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;If it weren&amp;rsquo;t that way, then the result of fixed-point calculations won&amp;rsquo;t directly map back to real numbers.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;&lt;strong&gt;2. It allows us to always represent &lt;code&gt;0.f&lt;/code&gt; accurately.&lt;/strong&gt;&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;If we quantize and dequantize any real value, only 256 (or generally, 2&lt;sup&gt;B&lt;/sup&gt;) of them will return the exact the same number, while all others will suffer some precision loss. If we ensure that &lt;code&gt;0.f&lt;/code&gt; is one of these 256 values , it turns out that DNNs can be quantized more accurately. The authors claim that this improves accuracy because 0 has a special significance in DNNs (such as padding). Besides, having 0 map to another value that&amp;rsquo;s higher/lower than zero will introduce a bias in the quantization scheme.&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt;So our quantization scheme will simply be a shifting and scaling of the real number line to a quantized number line. For a given set of real values, we want the minimum/maximum real values in this range $\left[r_{min}, r_{max}\right]$ to map to the minimum/maximum integer values $[0,2^B-1]$ respectively, with everything in between linearly distributed.&lt;br /&gt;
+&lt;p&gt;So our quantization scheme will simply be a shifting and scaling of the real number line to a quantized number line. For a given set of real values, we want the minimum/maximum real values in this range $\left[r_{min}, r_{max}\right]$ to map to the minimum/maximum integer values $[0,2^B-1]$ respectively, with everything in between linearly distributed.\&lt;br&gt;
 This gives us a pretty simple linear equation:&lt;/p&gt;
-
 &lt;p&gt;$$
 \begin{aligned}
-  r &amp;amp;= {r_{max}-r_{min} \over (2^B-1) - 0} \times (q-z) \\&lt;br /&gt;
-  &amp;amp;= S \times (q-z)
+r &amp;amp;= {r_{max}-r_{min} \over (2^B-1) - 0} \times (q-z) \\\&lt;br&gt;
+&amp;amp;= S \times (q-z)
 \end{aligned}
 $$&lt;/p&gt;
-
 &lt;p&gt;Here,&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;$r$ is the real value (usually &lt;code&gt;float32&lt;/code&gt;)&lt;/li&gt;
 &lt;li&gt;$q$ is its quantized representation as a $B$-bit integer (&lt;code&gt;uint8&lt;/code&gt;, &lt;code&gt;uint32&lt;/code&gt;, etc.)&lt;/li&gt;
@@ -613,152 +778,205 @@ $$&lt;/p&gt;
 
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/numberline.png&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/quantization-in-tflite/numberline.png&#34; &gt;
+
+
+  &lt;img src=&#34;/post/quantization-in-tflite/numberline.png&#34; alt=&#34;&#34;  &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 &lt;p&gt;From this point, we&amp;rsquo;ll assume quantized variables to be represented as &lt;code&gt;uint8&lt;/code&gt;, except where mentioned. Alternatively, we could also use int8, which would just shift the zero-point, $z$.&lt;/p&gt;
-
-&lt;p&gt;The set of numbers being quantized with the same parameters are values we expect to lie in the same range, such as weights of a given layer or activation outputs at a given node. We&amp;rsquo;ll see later how to find the actual ranges for various quantities in TensorFlow&amp;rsquo;s &lt;em&gt;fake quantization&lt;/em&gt; nodes. First, let&amp;rsquo;s see just put this together to see how these quantized layers fit in a network.
-&lt;br/&gt;&lt;/p&gt;
-
+&lt;p&gt;The set of numbers being quantized with the same parameters are values we expect to lie in the same range, such as weights of a given layer or activation outputs at a given node. We&amp;rsquo;ll see later how to find the actual ranges for various quantities in TensorFlow&amp;rsquo;s &lt;em&gt;fake quantization&lt;/em&gt; nodes. First, let&amp;rsquo;s see just put this together to see how these quantized layers fit in a network.&lt;/p&gt;
+&lt;hr&gt;
 &lt;h2 id=&#34;a-typical-quantized-layer&#34;&gt;A typical quantized layer&lt;/h2&gt;
-
 &lt;p&gt;Let&amp;rsquo;s look at the components of a conventional layer implemented in floating-point:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;Zero or more weight tensors, which are constant, and stored as float.&lt;/li&gt;
 &lt;li&gt;One or more input tensors; again, stored in float.&lt;/li&gt;
 &lt;li&gt;The forward pass function which operates on the weights and inputs, using floating point arithmetic, storing the output in float&lt;/li&gt;
 &lt;li&gt;Output tensors, again in float.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;Now the weights of a pre-trained network are constant, so we can convert &amp;amp; store them in quantized form beforehand with their exact ranges known to us.&lt;/p&gt;
-
 &lt;p&gt;The input to a layer, or equivalently the output of a preceding layer, are also quantized with their own separate parameters. But wait – to quantize a set of numbers don&amp;rsquo;t we need to know their range (and thus their actual values) in float first? Then what&amp;rsquo;s the point of quantized computation? The answer to this lies behind the fact that a layer&amp;rsquo;s output generally lies in a bounded range for most inputs, with only a few outliers. While we ideally would want to know the exact range of values to quantize them accurately, results of unknown inputs can still be expected to be in similar bounds. Luckily, we are already computing the output in float during another stage – training. Thus, we can find the average output range on a large number of inputs during training and use this as a proxy to the output quantization parameters. When running on an actual unseen input, an outlier will get squashed if our range is too small, or get rounded if the range is too wide. But hopefully there will only be a few of these.&lt;/p&gt;
-
 &lt;p&gt;What&amp;rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&amp;rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&amp;rsquo;ll also have to change some of the layers&amp;rsquo; logic. For example, ReLU should now compare values against &lt;code&gt;Quantized(0)&lt;/code&gt; instead of &lt;code&gt;0.f&lt;/code&gt;&lt;/p&gt;
-
 &lt;p&gt;The below figure puts it all together.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/layer.png&#34; alt=&#34;layer&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;We can even get a bit clever with the re-quantization in (3). TF-Lite uses gemmlowp for matrix multiplication, which stores results of &lt;code&gt;uint8&lt;/code&gt; matrix products in &lt;code&gt;int32&lt;/code&gt;. Then, we can add the biases quantized in higher precision as &lt;code&gt;int32&lt;/code&gt; itself. Finally, in going from 32-bit to 8-bit, (4) would expect the range of this layer&amp;rsquo;s output. Instead, we can specify the quantization range expected after the next activation layer, such as ReLU. This will implicitly compute activations and also help us use the full quantization range in this layer.&lt;br /&gt;
-&lt;br/&gt;&lt;/p&gt;
-
+&lt;p&gt;&lt;img src=&#34;/post/quantization-in-tflite/layer.png&#34; alt=&#34;layer&#34;&gt;&lt;/p&gt;
+&lt;p&gt;We can even get a bit clever with the re-quantization in (3). TF-Lite uses gemmlowp for matrix multiplication, which stores results of &lt;code&gt;uint8&lt;/code&gt; matrix products in &lt;code&gt;int32&lt;/code&gt;. Then, we can add the biases quantized in higher precision as &lt;code&gt;int32&lt;/code&gt; itself. Finally, in going from 32-bit to 8-bit, (4) would expect the range of this layer&amp;rsquo;s output. Instead, we can specify the quantization range expected after the next activation layer, such as ReLU. This will implicitly compute activations and also help us use the full quantization range in this layer.&lt;/p&gt;
+&lt;hr&gt;
 &lt;h2 id=&#34;fake-quantization&#34;&gt;&amp;ldquo;Fake&amp;rdquo; Quantization&lt;/h2&gt;
-
 &lt;p&gt;Now that we have everything in place to work with quantized variables, what&amp;rsquo;s left is preparing &amp;amp; converting a
 conventional neural network to the quantized form, which is where TensorFlow&amp;rsquo;s “fake quantization” nodes come in.&lt;/p&gt;
-
 &lt;p&gt;&lt;strong&gt;1. The first role that they fulfil is making the network more immune to precision loss due to quantization.&lt;/strong&gt;&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;The simplest approach to quantizing a neural network is to first train it in full precision, and then simply quantize the weights to fixed-point. This approach works okay for large models, but with small models with less redundant weights, the loss in precision adversely affects accuracy. With the fake quantization nodes, the rounding effect of quantization is simulated in the forward pass as it would occur in actual inference. In a way, we&amp;rsquo;re looking to fine-tune the weights to adjust for the precision loss. All quantities are still stored as float with full-precision desirable during training, and backpropagation still works as usual.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;&lt;strong&gt;2. Secondly, fake quantization nodes record the ranges of activations during training, which we discussed earlier.&lt;/strong&gt;&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;These nodes are placed in the training graph to exactly match wherever activations would change quantization ranges (input and output in below figure). As the network trains, they collect a moving average of the ranges of float values seen at that node.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;
 
 
-&lt;figure&gt;
 
-&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/simple.png&#34; width=&#34;30%&#34; /&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/quantization-in-tflite/simple.png&#34; &gt;
+
+
+  &lt;img src=&#34;/post/quantization-in-tflite/simple.png&#34; alt=&#34;&#34; width=&#34;30%&#34; &gt;
+&lt;/a&gt;
+
 
 
 &lt;/figure&gt;
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/simple_quantized.png&#34; width=&#34;30%&#34; /&gt;
 
 
-&lt;/figure&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;&lt;sub&gt;Source: &lt;a href=&#34;#gemmlowp_paper&#34;&gt;Benoit et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
 
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/quantization-in-tflite/simple_quantized.png&#34; &gt;
+
+
+  &lt;img src=&#34;/post/quantization-in-tflite/simple_quantized.png&#34; alt=&#34;&#34; width=&#34;30%&#34; &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;sub&gt;Source: 
+&lt;a href=&#34;#gemmlowp_paper&#34;&gt;Benoit et al&lt;/a&gt;&lt;/sub&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;All this information is then taken by TF-Lite&amp;rsquo;s TOCO (TensorFlow Optimizing COnverter) tool which – apart from other optimizations – performs the actual conversion to quantized values and specifies how to use them in inference by TF-Lite&amp;rsquo;s kernels on mobile devices.&lt;/p&gt;
-
 &lt;p&gt;The chart below shows the accuracy-latency tradeoff for various MobileNet models for ImageNet classification in quantized and float inference modes. For most part, the whole quantization pipeline works well and only suffers from very minor losses in accuracy. An interesting area to explore further is how this loss can be also be recovered via retraining.&lt;/p&gt;
 
 
 
 
-&lt;figure&gt;
-
-&lt;img src=&#34;https://sahnimanas.github.io/post/quantization-in-tflite/accuracy.png&#34; width=&#34;60%&#34; /&gt;
 
 
 
-&lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; &gt;
-  &lt;h4&gt;Accuracy-latency tradeoff with MobileNets. Source: &lt;a href=&#34;#gemmlowp_paper&#34;&gt;Benoit et al&lt;/a&gt;&lt;/h4&gt;
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-accuracy-latency-tradeoff-with-mobilenets-source-benoit-et-algemmlowp_paper&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/quantization-in-tflite/accuracy.png&#34; data-caption=&#34;Accuracy-latency tradeoff with MobileNets. Source: &amp;lt;a href=&amp;#34;#gemmlowp_paper&amp;#34;&amp;gt;Benoit et al&amp;lt;/a&amp;gt;&#34;&gt;
+
+
+  &lt;img src=&#34;/post/quantization-in-tflite/accuracy.png&#34; alt=&#34;&#34; width=&#34;60%&#34; &gt;
+&lt;/a&gt;
+
+
   
-&lt;/figcaption&gt;
+  
+  &lt;figcaption&gt;
+    Accuracy-latency tradeoff with MobileNets. Source: &lt;a href=&#34;#gemmlowp_paper&#34;&gt;Benoit et al&lt;/a&gt;
+  &lt;/figcaption&gt;
+
 
 &lt;/figure&gt;
 
-&lt;h2 id=&#34;what-s-next&#34;&gt;&lt;strong&gt;What&amp;rsquo;s next&lt;/strong&gt;&lt;/h2&gt;
-
+&lt;h2 id=&#34;whats-next&#34;&gt;&lt;strong&gt;What&amp;rsquo;s next&lt;/strong&gt;&lt;/h2&gt;
 &lt;p&gt;Most of the processes described here are specific to how quantization is done in TensorFlow Lite, which only deals with quantized inference with a model trained using good old single precision. Even for inference, it just happens to be one of many options and it remains to be seen if other approaches might work better. What is certain is that the benefits offered by quantization today on mobile devices are real, and perhaps beyond mobile devices in the future; and hence the field is seeing increasing interest from all sorts of stakeholders. There are all kinds of other results with quantized training, non-linear quantization, binary quantization, networks without multipliers… it&amp;rsquo;s a growing list, which I hope to cover soon.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;hr /&gt;
-
+&lt;hr&gt;
+&lt;hr&gt;
 &lt;h2 id=&#34;further-reading&#34;&gt;&lt;strong&gt;Further Reading&lt;/strong&gt;&lt;/h2&gt;
-
 &lt;h4 id=&#34;quantization-in-tf-lite-1&#34;&gt;Quantization in TF-Lite&lt;/h4&gt;
-
 &lt;p&gt;&lt;a name=&#34;warden&#34;&gt;&lt;/a&gt;&lt;/p&gt;
-
 &lt;ul&gt;
-&lt;li&gt;Pete Warden&amp;rsquo;s blog posts on quantization: &lt;a href=&#34;https://petewarden.com/2015/05/23/why-are-eight-bits-enough-for-deep-neural-networks/&#34; target=&#34;_blank&#34;&gt;1&lt;/a&gt;, &lt;a href=&#34;https://petewarden.com/2016/05/03/how-to-quantize-neural-networks-with-tensorflow/&#34; target=&#34;_blank&#34;&gt;2&lt;/a&gt;, &lt;a href=&#34;https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/&#34; target=&#34;_blank&#34;&gt;3&lt;/a&gt;
+&lt;li&gt;Pete Warden&amp;rsquo;s blog posts on quantization: 
+&lt;a href=&#34;https://petewarden.com/2015/05/23/why-are-eight-bits-enough-for-deep-neural-networks/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;1&lt;/a&gt;, 
+&lt;a href=&#34;https://petewarden.com/2016/05/03/how-to-quantize-neural-networks-with-tensorflow/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;2&lt;/a&gt;, 
+&lt;a href=&#34;https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;3&lt;/a&gt;
 &lt;a name=&#34;gemmlowp_paper&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Jacob B, Kligys S, Chen B, Zhu M, Tang M, Howard A, Adam H, Kalenichenko D. &lt;a href=&#34;https://arxiv.org/abs/1712.05877&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Quantization and training of neural networks for efficient integer-arithmetic-only inference.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1712.05877. 2017 Dec 15.&lt;/li&gt;
+&lt;li&gt;Jacob B, Kligys S, Chen B, Zhu M, Tang M, Howard A, Adam H, Kalenichenko D. 
+&lt;a href=&#34;https://arxiv.org/abs/1712.05877&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Quantization and training of neural networks for efficient integer-arithmetic-only inference.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1712.05877. 2017 Dec 15.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;h4 id=&#34;quantized-training&#34;&gt;Quantized training&lt;/h4&gt;
-
 &lt;p&gt;&lt;a name=&#34;tomg&#34;&gt;&lt;/a&gt;&lt;/p&gt;
-
 &lt;ul&gt;
-&lt;li&gt;Li H, De S, Xu Z, Studer C, Samet  H, Goldstein T. &lt;a href=&#34;https://arxiv.org/abs/1706.02379&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Training Quantized Nets: A Deeper Understanding.&amp;rdquo;&lt;/a&gt; Neural Information Processing Systems (NIPS), 2017
+&lt;li&gt;Li H, De S, Xu Z, Studer C, Samet  H, Goldstein T. 
+&lt;a href=&#34;https://arxiv.org/abs/1706.02379&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Training Quantized Nets: A Deeper Understanding.&amp;quot;&lt;/a&gt; Neural Information Processing Systems (NIPS), 2017
 &lt;a name=&#34;dl_with_limited_precision&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Gupta, Suyog, et al. &lt;a href=&#34;https://arxiv.org/abs/1502.02551&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Deep learning with limited numerical precision.&amp;rdquo;&lt;/a&gt; International Conference on Machine Learning. 2015.
+&lt;li&gt;Gupta, Suyog, et al. 
+&lt;a href=&#34;https://arxiv.org/abs/1502.02551&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Deep learning with limited numerical precision.&amp;quot;&lt;/a&gt; International Conference on Machine Learning. 2015.
 &lt;a name=&#34;courbariaux&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. &lt;a href=&#34;https://arxiv.org/abs/1412.7024&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Training deep neural networks with low precision multiplications.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1412.7024 (2014).
+&lt;li&gt;Courbariaux, Matthieu, Yoshua Bengio, and Jean-Pierre David. 
+&lt;a href=&#34;https://arxiv.org/abs/1412.7024&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Training deep neural networks with low precision multiplications.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1412.7024 (2014).
 &lt;a name=&#34;wage&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Wu, Shuang, et al. &lt;a href=&#34;https://arxiv.org/abs/1802.04680&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Training and inference with integers in deep neural networks.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1802.04680 (2018).&lt;/li&gt;
+&lt;li&gt;Wu, Shuang, et al. 
+&lt;a href=&#34;https://arxiv.org/abs/1802.04680&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Training and inference with integers in deep neural networks.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1802.04680 (2018).&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;h4 id=&#34;extremely-low-bit-quantization&#34;&gt;Extremely low-bit quantization&lt;/h4&gt;
-
 &lt;p&gt;&lt;a name=&#34;ternary&#34;&gt;&lt;/a&gt;&lt;/p&gt;
-
 &lt;ul&gt;
-&lt;li&gt;Zhu, Chenzhuo, et al. &lt;a href=&#34;https://arxiv.org/abs/1612.01064&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Trained ternary quantization.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1612.01064 (2016).
+&lt;li&gt;Zhu, Chenzhuo, et al. 
+&lt;a href=&#34;https://arxiv.org/abs/1612.01064&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Trained ternary quantization.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1612.01064 (2016).
 &lt;a name=&#34;binary&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Courbariaux, Matthieu, et al. &lt;a href=&#34;https://arxiv.org/abs/1602.02830&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1602.02830 (2016).
+&lt;li&gt;Courbariaux, Matthieu, et al. 
+&lt;a href=&#34;https://arxiv.org/abs/1602.02830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1602.02830 (2016).
 &lt;a name=&#34;xnor&#34;&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Rastegari, Mohammad, et al. &lt;a href=&#34;https://arxiv.org/abs/1603.05279&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Xnor-net: Imagenet classification using binary convolutional neural networks.&amp;rdquo;&lt;/a&gt;European Conference on Computer Vision. Springer, Cham, 2016.&lt;/li&gt;
+&lt;li&gt;Rastegari, Mohammad, et al. 
+&lt;a href=&#34;https://arxiv.org/abs/1603.05279&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Xnor-net: Imagenet classification using binary convolutional neural networks.&amp;quot;&lt;/a&gt;European Conference on Computer Vision. Springer, Cham, 2016.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;h4 id=&#34;quantization-for-compression&#34;&gt;Quantization for compression&lt;/h4&gt;
-
 &lt;p&gt;&lt;a name=&#34;deep_compression&#34;&gt;&lt;/a&gt;&lt;/p&gt;
-
 &lt;ul&gt;
-&lt;li&gt;Han, Song, Huizi Mao, and William J. Dally. &lt;a href=&#34;https://arxiv.org/abs/1510.00149&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.&amp;rdquo;&lt;/a&gt; arXiv preprint arXiv:1510.00149 (2015).&lt;/li&gt;
+&lt;li&gt;Han, Song, Huizi Mao, and William J. Dally. 
+&lt;a href=&#34;https://arxiv.org/abs/1510.00149&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.&amp;quot;&lt;/a&gt; arXiv preprint arXiv:1510.00149 (2015).&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

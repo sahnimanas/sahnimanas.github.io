@@ -1,90 +1,74 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://sahnimanas.github.io/authors/</loc>
-    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/</loc>
+    <loc>/post/anatomy-of-a-high-performance-convolution/</loc>
     <lastmod>2019-08-26T21:57:19+05:30</lastmod>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/authors/</loc>
-    <lastmod>2019-08-26T21:57:19+05:30</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://sahnimanas.github.io/post/</loc>
+    <loc>/post/</loc>
     <lastmod>2019-08-26T21:57:19+05:30</lastmod>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/</loc>
+    <loc>/</loc>
     <lastmod>2019-08-26T21:57:19+05:30</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/post/quantization-in-tflite/</loc>
+    <loc>/tag/inference/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/tags/</loc>
+    <loc>/post/quantization-in-tflite/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/tags/inference/</loc>
+    <loc>/tag/performance/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/tags/performance/</loc>
+    <loc>/tag/quantization/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/tags/quantization/</loc>
+    <loc>/tags/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/tags/tf-lite/</loc>
+    <loc>/tag/tf-lite/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/authors/admin/</loc>
+    <loc>/authors/</loc>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/categories/</loc>
-    <priority>0</priority>
+    <loc>/categories/</loc>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/publication_types/</loc>
-    <priority>0</priority>
+    <loc>/author/manas-sahni/</loc>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/publication/</loc>
+    <loc>/publication_types/</loc>
   </url>
   
   <url>
-    <loc>https://sahnimanas.github.io/talk/</loc>
+    <loc>/publication/</loc>
+  </url>
+  
+  <url>
+    <loc>/talk/</loc>
   </url>
   
 </urlset>

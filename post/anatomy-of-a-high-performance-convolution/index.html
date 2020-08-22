@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en-us">
+<!DOCTYPE html><html lang="en-us" >
 
 <head>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Source Themes Academic 4.3.1">
+  <meta name="generator" content="Source Themes Academic 4.8.0">
 
+  
+
+  
   
 
   
@@ -31,12 +33,10 @@
   <meta name="description" content="It&#39;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don&#39;t? What exactly does one do to &#34;optimize&#34; or accelerate neural networks operations? ">
 
   
-  <link rel="alternate" hreflang="en-us" href="https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/">
+  <link rel="alternate" hreflang="en-us" href="/post/anatomy-of-a-high-performance-convolution/">
 
   
 
-
-  
 
   
   
@@ -47,11 +47,17 @@
   
   
   
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
   
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css" integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
 
     
     
@@ -62,8 +68,8 @@
       
       
         
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
         
       
     
@@ -72,61 +78,209 @@
 
     
 
-  
-
-  
-  
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat|Roboto+Mono|Open+Sans">
-  
-
-  
-  
-  
-  <link rel="stylesheet" href="/css/academic.min.2996651925b249913cb5d36c427552fd.css">
-
-  
-    
-    
     
     
       
-    
-    
-    
-    <link rel="stylesheet" href="/css/academic.7dec1834d0221bc38db86511dd17040b.css">
-  
 
-  
-  
-    <script>
-      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-      ga('create', 'UA-121432719-1', 'auto');
       
-      ga('require', 'eventTracker');
-      ga('require', 'outboundLinkTracker');
-      ga('require', 'urlChangeTracker');
-      ga('send', 'pageview');
-    </script>
-    <script async src="//www.google-analytics.com/analytics.js"></script>
+      
+
+      
     
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js" integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans%7CRoboto+Mono&display=swap">
     
   
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.css">
+
+  
+
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121432719-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+      dataLayer.push(arguments);
+  }
+
+  function trackOutboundLink(url, target) {
+    gtag('event', 'click', {
+         'event_category': 'outbound',
+         'event_label': url,
+         'transport_type': 'beacon',
+         'event_callback': function () {
+           if (target !== '_blank') {
+             document.location = url;
+           }
+         }
+    });
+    console.debug("Outbound link clicked: " + url);
+  }
+
+  function onClickCallback(event) {
+    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
+      return;
+    }
+    trackOutboundLink(event.target, event.target.getAttribute('target'));  
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'UA-121432719-1', {});
+
+  
+  document.addEventListener('click', onClickCallback, false);
+</script>
+
+
+  
+
+
+  
   
 
   
 
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="icon" type="image/png" href="/img/icon.png">
-  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
 
-  <link rel="canonical" href="https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/">
+  <link rel="canonical" href="/post/anatomy-of-a-high-performance-convolution/">
 
+  
+  
+  
   
   
   
   
     
+  
   
   <meta property="twitter:card" content="summary_large_image">
   
@@ -134,15 +288,70 @@
   <meta property="twitter:creator" content="@sahnimanas">
   
   <meta property="og:site_name" content="Manas Sahni">
-  <meta property="og:url" content="https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/">
+  <meta property="og:url" content="/post/anatomy-of-a-high-performance-convolution/">
   <meta property="og:title" content="Anatomy of a High-Speed Convolution | Manas Sahni">
-  <meta property="og:description" content="It&#39;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don&#39;t? What exactly does one do to &#34;optimize&#34; or accelerate neural networks operations? "><meta property="og:image" content="https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/featured.jpg">
-  <meta property="og:locale" content="en-us">
+  <meta property="og:description" content="It&#39;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don&#39;t? What exactly does one do to &#34;optimize&#34; or accelerate neural networks operations? "><meta property="og:image" content="/post/anatomy-of-a-high-performance-convolution/featured.jpg">
+  <meta property="twitter:image" content="/post/anatomy-of-a-high-performance-convolution/featured.jpg"><meta property="og:locale" content="en-us">
   
-  <meta property="article:published_time" content="2019-08-26T21:57:19&#43;05:30">
+    
+      <meta property="article:published_time" content="2019-08-26T21:57:19&#43;05:30">
+    
+    <meta property="article:modified_time" content="2019-08-26T21:57:19&#43;05:30">
   
-  <meta property="article:modified_time" content="2019-08-26T21:57:19&#43;05:30">
+
   
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/anatomy-of-a-high-performance-convolution/"
+  },
+  "headline": "Anatomy of a High-Speed Convolution",
+  
+  "image": [
+    "/post/anatomy-of-a-high-performance-convolution/featured.jpg"
+  ],
+  
+  "datePublished": "2019-08-26T21:57:19+05:30",
+  "dateModified": "2019-08-26T21:57:19+05:30",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Manas Sahni"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Manas Sahni",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "It's no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But just what is the black magic that these libraries use that we mere mortals don't? What exactly does one do to \"optimize\" or accelerate neural networks operations? "
+}
+</script>
+
+  
+
+  
+
 
   
 
@@ -156,9 +365,7 @@
   <title>Anatomy of a High-Speed Convolution | Manas Sahni</title>
 
 </head>
-
-
-<body id="top" data-spy="scroll" data-target="#TableOfContents" data-offset="71" >
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
 
   <aside class="search-results" id="search">
   <div class="container">
@@ -192,24 +399,43 @@
 
 
   
-<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
   <div class="container">
 
     
+    <div class="d-none d-lg-inline-flex">
       <a class="navbar-brand" href="/">Manas Sahni</a>
-      
-      <button type="button" class="navbar-toggler" data-toggle="collapse"
-              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
-        <span><i class="fas fa-bars"></i></span>
-      </button>
-      
+    </div>
+    
 
     
-    <div class="collapse navbar-collapse" id="navbar">
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+      <a class="navbar-brand" href="/">Manas Sahni</a>
+    </div>
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-end" id="navbar-content">
 
       
-      
-      <ul class="navbar-nav ml-auto">
+      <ul class="navbar-nav d-md-inline-flex">
         
 
         
@@ -235,7 +461,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/#about"><span>Home</span></a>
+          <a class="nav-link " href="/#about"><span>About</span></a>
         </li>
 
         
@@ -277,38 +503,9 @@
         
         
         
-          
-          
-          
-            
-          
-          
-        
 
         <li class="nav-item">
-          <a class="nav-link " href="/#contact"><span>Contact</span></a>
-        </li>
-
-        
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-
-        <li class="nav-item">
-          <a class="nav-link " href="/files/resume.pdf"><span>CV</span></a>
+          <a class="nav-link " href="/files/resume.pdf"><span>Resume</span></a>
         </li>
 
         
@@ -317,21 +514,23 @@
       
 
         
-
-        
-
-        
-
-        
-
       </ul>
-
     </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+      
+
+      
+
+      
+
+    </ul>
+
   </div>
 </nav>
 
 
-  <article class="article" itemscope itemtype="http://schema.org/Article">
+  <article class="article">
 
   
 
@@ -347,41 +546,27 @@
 
 
 
-<div class="article-header d-xl-none">
-  <div class="featured-image" style="background-image: url('/post/anatomy-of-a-high-performance-convolution/featured_hu8d9c878bd9b0e07cf9f48db479371411_543178_800x0_resize_q90_lanczos.jpg');"></div>
+
+
+
+
+
+
+
   
-</div>
+  
 
 
-<div class="container-fluid split-header d-none d-xl-block">
-  <div class="row">
-    <div class="col-6">
-      <div class="split-header-content">
-        <h1 itemprop="name">Anatomy of a High-Speed Convolution</h1>
+<div class="article-container pt-3">
+  <h1>Anatomy of a High-Speed Convolution</h1>
 
-        
+  
 
-        
+  
 
-
-
-<meta content="2019-08-26 21:57:19 &#43;0530 &#43;0530" itemprop="datePublished">
-<meta content="2019-08-26 21:57:19 &#43;0530 &#43;0530" itemprop="dateModified">
 
 <div class="article-metadata">
 
-  
-  
-  
-  
-  <div>
-    
-
-
-
-  <span itemprop="author name" itemtype="http://schema.org/Person"></span>
-
-  </div>
   
   
 
@@ -391,7 +576,7 @@
     
       
     
-    <time>Aug 26, 2019</time>
+    Aug 26, 2019
   </span>
   
 
@@ -406,167 +591,6 @@
 
   
   
-  <span class="middot-divider"></span>
-  <a href="/post/anatomy-of-a-high-performance-convolution/#disqus_thread"></a>
-  
-
-  
-  
-
-  
-
-</div>
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-<div class="share-box" aria-hidden="true">
-  <ul class="share">
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://twitter.com/intent/tweet?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;text=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-twitter">
-          <i class="fab fa-twitter"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.facebook.com/sharer.php?u=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;t=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-facebook">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.linkedin.com/shareArticle?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;title=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-linkedin">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://web.whatsapp.com/send?text=Anatomy%20of%20a%20High-Speed%20Convolution%20https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/" target="_blank" rel="noopener" class="share-btn-whatsapp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://reddit.com/submit?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;title=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-reddit">
-          <i class="fab fa-reddit-alien"></i>
-        </a>
-      </li>
-    
-  </ul>
-</div>
-
-
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="split-header-image">
-        <img src="/post/anatomy-of-a-high-performance-convolution/featured_hu8d9c878bd9b0e07cf9f48db479371411_543178_680x500_fill_q90_lanczos_center.jpg" itemprop="image" alt="">
-        
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="article-container d-xl-none">
-  <h1 itemprop="name">Anatomy of a High-Speed Convolution</h1>
-
-  
-
-  
-
-
-
-<meta content="2019-08-26 21:57:19 &#43;0530 &#43;0530" itemprop="datePublished">
-<meta content="2019-08-26 21:57:19 &#43;0530 &#43;0530" itemprop="dateModified">
-
-<div class="article-metadata">
-
-  
-  
-  
-  
-  <div>
-    
-
-
-
-  <span itemprop="author name" itemtype="http://schema.org/Person"></span>
-
-  </div>
-  
-  
-
-  
-  <span class="article-date">
-    
-    
-      
-    
-    <time>Aug 26, 2019</time>
-  </span>
-  
-
-  
-
-  
-  <span class="middot-divider"></span>
-  <span class="article-reading-time">
-    16 min read
-  </span>
-  
-
-  
   
   <span class="middot-divider"></span>
   <a href="/post/anatomy-of-a-high-performance-convolution/#disqus_thread"></a>
@@ -575,82 +599,6 @@
   
   
 
-  
-    
-<div class="share-box" aria-hidden="true">
-  <ul class="share">
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://twitter.com/intent/tweet?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;text=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-twitter">
-          <i class="fab fa-twitter"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.facebook.com/sharer.php?u=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;t=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-facebook">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.linkedin.com/shareArticle?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;title=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-linkedin">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://web.whatsapp.com/send?text=Anatomy%20of%20a%20High-Speed%20Convolution%20https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/" target="_blank" rel="noopener" class="share-btn-whatsapp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://reddit.com/submit?url=https://sahnimanas.github.io/post/anatomy-of-a-high-performance-convolution/&amp;title=Anatomy%20of%20a%20High-Speed%20Convolution" target="_blank" rel="noopener" class="share-btn-reddit">
-          <i class="fab fa-reddit-alien"></i>
-        </a>
-      </li>
-    
-  </ul>
-</div>
-
-
-  
-
 </div>
 
   
@@ -668,31 +616,33 @@
 
 
 
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 700px; max-height: 525px;">
+  <div style="position: relative">
+    <img src="/post/anatomy-of-a-high-performance-convolution/featured.jpg" alt="" class="featured-image">
+    
+  </div>
 </div>
 
 
 
   <div class="article-container">
 
-    <div class="article-style" itemprop="articleBody">
-      
-
-<p>On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &ldquo;heavy&rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over <em>2 seconds</em> for a single layer!</p>
-
+    <div class="article-style">
+      <p>On my not-too-shabby laptop CPU, I can run most common CNN models in (at most) 10-100 milliseconds, with libraries like TensorFlow. In 2019, even a smartphone can run &ldquo;heavy&rdquo; CNN models (like ResNet) in less than half a second. So imagine my surprise when I timed my own simple implementation of a convolution layer and found that it took over <em>2 seconds</em> for a single layer!</p>
 <p>It&rsquo;s no surprise that modern deep-learning libraries have production-level, highly-optimized implementations of most operations. But what exactly is the black magic that these libraries use that we mere mortals don&rsquo;t? How are they able to improve performance by 100x? What exactly does one do to &ldquo;optimize&rdquo; or accelerate neural networks operations? These are questions I often asked (and get asked) when talking about high-performance/efficient DNNs.</p>
-
 <p>In this post, I&rsquo;ll attempt to walk you through how a convolution layer is implemented in DNN libraries. Not only is it one of the most common and heaviest operations in many DNN models, I also find convolution to be particularly representative of the kind of tricks that go into these high-performance implementations &ndash; a little of bit of algorithmic cleverness and a lot of careful tuning and exploitation of low-level architecture.</p>
-
-<p>A lot of what I cover here is from the seminal paper <a href="https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf" target="_blank"><em>&ldquo;Anatomy of a high-performance matrix multiplication&rdquo;</em></a> by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from <a href="https://cs.stanford.edu/people/shadjis/blas.html" target="_blank">Dr. Stefan Hadjis</a> and <a href="https://www.whatsacreel.net" target="_blank">Chris Rose</a>.</p>
-
+<p>A lot of what I cover here is from the seminal paper 
+<a href="https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf" target="_blank" rel="noopener"><em>&ldquo;Anatomy of a high-performance matrix multiplication&rdquo;</em></a> by Goto et al. which formed the basis for the algorithms used in linear algebra libraries like OpenBLAS; and these helpful tutorial from 
+<a href="https://cs.stanford.edu/people/shadjis/blas.html" target="_blank" rel="noopener">Dr. Stefan Hadjis</a> and 
+<a href="https://www.whatsacreel.net" target="_blank" rel="noopener">Chris Rose</a>.</p>
 <h1 id="naive-convolutions">Naive Convolutions</h1>
-
 <blockquote>
 <p>&ldquo;Premature optimization is the root of all evil&rdquo; &ndash; Donald Knuth</p>
 </blockquote>
-
 <p>Before we go around optimizing things, let&rsquo;s first get a handle on our baseline and bottlenecks. Here&rsquo;s a naive numpy/for-loop convolution that you&rsquo;d write in Deep Learning 101:</p>
-
 <pre><code class="language-python">'''
 Convolve `input` with `kernel` to generate `output`
     input.shape = [input_channels, input_height, input_width]
@@ -709,52 +659,53 @@ for filter in 0..num_filters
                             kernel[filter, channel, k_h, k_w] * 
                             input[channel, out_h + k_h, out_w + k_w]
 </code></pre>
-
 <p>Yikes. That&rsquo;s 6 nested <code>for</code> loops for one conv (7 if you iterate over batches of multiple inputs). And we&rsquo;re not yet looking at stride, dilation, or any other parameters. If I plug in here the sizes for, say the first layer of MobileNet, and run this in plain C, it takes a whopping <em>22 seconds</em>! With the most aggressive compiler optimizations like <code>-O3</code> or <code>-Ofast</code>, it reduces to 2.2 seconds. But that&rsquo;s still terribly slow for just the first layer.</p>
-
 <p>What if I run the same layer using, say, Caffe? It took just 18ms on the same PC. That&rsquo;s more than a 100x speedup! The entire network itself runs in ~100ms on my CPU.</p>
-
 <p>What is the bottleneck and where should we begin to optimize?</p>
-
 <p>The inner-most loop does 2 floating point operations (multiply &amp; add), and for the sizes I used, it&rsquo;s executed about 85.16 million times, i.e. this convolution requires 170 million floating point operations (MFLOPs).
 The peak performance of my CPU, according to Intel, is 80 <em>billion</em> FLOPs per second, i.e. it could <em>theoretically</em> finish the job in 0.002 seconds. Clearly, we&rsquo;re nowhere near that and clearly, the raw processing capability is more than sufficient here.</p>
-
 <p>The reason that the theoretical peak isn&rsquo;t achieved (ever) is that memory accesses also take time &ndash; it&rsquo;s not enough to <em>process</em> data quickly, if you can&rsquo;t <em>get</em> the data quickly. It turns out that the heavily-nested for-loops above make for very difficult data access patterns, which poorly utilize the cache.</p>
-
-<p>As you&rsquo;ll see, a recurring concern throughout the discussion will be how we&rsquo;re accessing the data we&rsquo;re operating on, and how that relates to the way it&rsquo;s stored.
-<!-- If you compare the number of arithmetic operations to the memory accesses, convolution does 100-1000 ops per byte of data -- this is also called the **arithmetic intensity** or the ops:bytes ratio. So,  --></p>
-
+<p>As you&rsquo;ll see, a recurring concern throughout the discussion will be how we&rsquo;re accessing the data we&rsquo;re operating on, and how that relates to the way it&rsquo;s stored.</p>
+<!-- If you compare the number of arithmetic operations to the memory accesses, convolution does 100-1000 ops per byte of data -- this is also called the **arithmetic intensity** or the ops:bytes ratio. So,  -->
 <h1 id="some-prerequisites">Some Prerequisites</h1>
-
-<h2 id="flop-s">FLOP/s</h2>
-
+<h2 id="flops">FLOP/s</h2>
 <p>Our metric for &ldquo;performance&rdquo; or speed will be the throughput, measured in the number of <strong>FL</strong>oating <strong>P</strong>oint <strong>O</strong>perations per <strong>S</strong>econd, or FLOP/s. A bigger operation with more floating-point operations will naturally run slower, so FLOP/s rate allows a more consistent way to compare performance.</p>
-
 <p>We can also use this to get an idea of how close we are to the peak performance of the CPU. On my laptop CPU:</p>
-
 <ul>
 <li>there are 2 phsyical cores</li>
 <li>each core has a frequency of 2.5 GHz, or $2.5\times10^9$ CPU cycles per second</li>
-<li>in each cycle, it can process 32 FLOPs (using AVX &amp; FMA, more on this in a bit)
-<br /></li>
+<li>in each cycle, it can process 32 FLOPs (using AVX &amp; FMA, more on this in a bit)</li>
 </ul>
-
 <p>This gives a peak performance of $2\times2.5\times10^9\frac{cycles}{second}\times32\frac{FLOPs}{cycle}=160$ GFLOP/s. This is the theoretical peak of my CPU. Similarly, for a single core, this number is 80 GFLOP/s.</p>
-
 <h2 id="storage-orders-and-row-major">Storage orders and Row Major</h2>
-
 <p>While we logically view matrices/images/tensors as multi-dimensional, they&rsquo;re physically stored in a linear, one-dimensional computer memory. We have to define a convention which dictates how to unwrap these multiple dimensions to a linear storage, and vice versa.</p>
-
 <p>Most modern DL libraries use a <em>row-major</em> storage order. This means that consecutive elements of the same row are stored next to each other. More generally with multiple dimensions, row-major means the first dimension changes the slowest as you scan the memory linearly.</p>
-
 <p>What about the ordering of the dimensions themselves? Usually for 4-dimensional tensors like in CNNs, you&rsquo;ll hear of storage orders like NCHW, NHWC, etc. I&rsquo;ll assume NCHW throughout this post &ndash; if I have N blocks of C channels of HxW images, then all images with the same N are contigous; within that block all pixels of the same channel C are contigous, and so on.</p>
 
 
 
 
-<figure>
 
-<img src="img/storage-order.png" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/storage-order.png" >
+
+
+  <img src="./img/storage-order.png" alt=""  >
+</a>
+
 
 
 </figure>
@@ -765,109 +716,161 @@ Like everywhere else in computer science, memory storage comes with a tradeoff b
 The various levels of cache (L1, L2, L3) represent increasingly faster but smaller memory, usually totalling only a few KB/MB. The RAM has much more capacity and more complex addressing, but is also orders of magnitude slower.
 
 While this is a vast subject, what's important to know for this discussion is that our naive implementation suffers majorly from poor data caching. Our goal will be to exploit the cache as much as possible -- but  -->
-
 <h2 id="halide">Halide</h2>
-
-<p>Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code. <a href="https://halide-lang.org" target="_blank">Halide</a> is an embedded language in C++ that helps abstract these concepts and is designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (<em>what</em> to compute) and the schedule (<em>how/when</em> to compute it). We can keep the algorithm fixed, and play around with different schedules.</p>
-
+<p>Many of the optimizations discussed here require meddling at the lower-level with cryptic C syntax or even assembly. Not only does this make code difficult to read, it also makes trying out different optimizations difficult as we have to re-write our entire code. 
+<a href="https://halide-lang.org" target="_blank" rel="noopener">Halide</a> is an embedded language in C++ that helps abstract these concepts and is designed to help write fast image-processing code. It makes it easier to experiment with different optimizations by disentangling the algorithm (<em>what</em> to compute) and the schedule (<em>how/when</em> to compute it). We can keep the algorithm fixed, and play around with different schedules.</p>
 <p>I&rsquo;ll use Halide to represent these lower-level concepts, but you should be able to understand the intuitive function names enough to follow along.</p>
-
 <h1 id="from-convolution-to-gemm">From Convolution to GEMM</h1>
-
 <p>The naive convolution that we discussed above is slow already, and a more realistic implementation will only be further complicated by parameters like stride, dilation, padding, etc. We could continue using the basic conv as a working example but, as you&rsquo;ll see, extracting maximum performance out of the computer requires many tricks &ndash; carefully fine-tuning at multiple levels &amp; exploting very specific knowledge of the computer architecture at hand. In other words, this is going to be a formidable task if we&rsquo;re hoping to address all of the complexities.</p>
-
 <p>Can we instead transform this into a problem that&rsquo;s easier to solve? Perhaps matrix multiplication?</p>
-
-<p>Matrix multiplication, or matmul, or <strong>Ge</strong>neralized <strong>M</strong>atrix <strong>M</strong>ultiplication (<strong>GEMM</strong>), is <a href="https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/" target="_blank">at the heart of deep learning</a>. It&rsquo;s used in fully-connected layers, RNNs, etc., and can be used to implement convolutions too.</p>
-
+<p>Matrix multiplication, or matmul, or <strong>Ge</strong>neralized <strong>M</strong>atrix <strong>M</strong>ultiplication (<strong>GEMM</strong>), is 
+<a href="https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/" target="_blank" rel="noopener">at the heart of deep learning</a>. It&rsquo;s used in fully-connected layers, RNNs, etc., and can be used to implement convolutions too.</p>
 <p>Conv is, after all, a dot-product of the filter with input patches. If we lay out the filter into a 2-D matrix and the input patches in another, then the multiplying these 2 matrices would compute the same dot product. And matrix multiplication &ndash; unlike CNNs &ndash; has been heavily studied and optimized over several decades, being a critical problem in many scientific domains.</p>
-
 <p>The above laying out of the image patches into a matrix is called <em><strong>im2col</strong></em>, for image to column. We rearrange the image into columns of a matrix, so that each column corresponds to one patch where the conv filter is applied.</p>
-
 <p>Consider this normal, direct 3x3 convolution:
 
 
 
-<figure>
-
-<img src="img/direct-conv-im2col.png" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/direct-conv-im2col.png" >
+
+
+  <img src="./img/direct-conv-im2col.png" alt=""  >
+</a>
+
+
+
+</figure>
+</p>
 <p>Below is the same operation implemented as a matrix multiplication. The right matrix is the result of im2col &ndash; it has to be constructed by copying pixels from the original image. The left matrix has the conv weights, which are already stored this way in memory.
 
 
 
-<figure>
-
-<img src="img/matrix-im2col.png" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/matrix-im2col.png" >
+
+
+  <img src="./img/matrix-im2col.png" alt=""  >
+</a>
+
+
+
+</figure>
+</p>
 <p>Note that the matrix product gives us the conv output directly &ndash; there is no need for an extra &ldquo;conversion&rdquo; to the original form.</p>
-
 <p>I&rsquo;ve shown each patch as independent here for visual clarity. However, in reality, there usually is some overlap between different image patches, and hence im2col incurs some memory duplication. The time taken to generate this im2col buffer and the inflated memory, will have to be offset by the speedup we achieve via GEMM.</p>
-
 <p>With im2col, we have now transformed the convolution operation into a matrix multiplication. We can now plug in more general-purpose &amp; popular linear algebra libraries like OpenBLAS, Eigen, etc. to take care of efficiently computing this matmul, riding on the back of decades of optimizations &amp; careful fine-tuning.</p>
-
 <p>We&rsquo;ll need some pretty serious speedups if we&rsquo;re going to justify the extra work and memory resulting from the im2col transform, so let&rsquo;s see how these libraries might be achieving that. This also gives a good intro to some general approaches when optimizing at the system level.</p>
-
 <div class="alert alert-note">
   <div>
-    While this idea of convolution-as-GEMM existed in different forms before, Caffe was one of the first deep-learning libraries to use this method for general convs on CPU &amp; GPU and show a major speedup. <a href="https://github.com/Yangqing/caffe/wiki/Convolution-in-Caffe:-a-memo" target="_blank">Here&rsquo;s</a> a very interesting read from Yanqing Jia himself (creator of Caffe) on the origins of this decision from a thesis deadline, and thoughts on &ldquo;temporary&rdquo; solutions.
+    While this idea of convolution-as-GEMM existed in different forms before, Caffe was one of the first deep-learning libraries to use this method for general convs on CPU &amp; GPU and show a major speedup. <a href="https://github.com/Yangqing/caffe/wiki/Convolution-in-Caffe:-a-memo">Here&rsquo;s</a> a very interesting read from Yanqing Jia himself (creator of Caffe) on the origins of this decision from a thesis deadline, and thoughts on &ldquo;temporary&rdquo; solutions.
   </div>
 </div>
-
 <h1 id="speeding-up-the-gemm">Speeding up the GEMM</h1>
-
 <h2 id="naive">Naive</h2>
-
-<p>Through the rest of this post, I&rsquo;ll assume the GEMM is performed as $C_{M \times N} \mathrel{+}= A_{M \times K} * B_{K \times N}$ <br />
+<p>Through the rest of this post, I&rsquo;ll assume the GEMM is performed as $C_{M \times N} \mathrel{+}= A_{M \times K} * B_{K \times N}$<br>
 As before, first let&rsquo;s time the basic, textbook matrix multiplication:</p>
-
 <pre><code class="language-cpp">for i in 0..M:
     for j in 0..N:
         for k in 0..K:
             C[i, j] += A[i, k] * B[k, j]
 </code></pre>
-
 <p>Or in Halide:</p>
-
 <pre><code class="language-cpp">Halide::Buffer C, A, B;
 Halide::Var x, y;
 
 C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of automatically
 </code></pre>
-
-<p>The inner most line does 2 floating point ops (multiply &amp; add) and is performed $M*N*K$ times, so the number of FLOPs for this GEMM is $2MNK$.</p>
-
+<p>The inner most line does 2 floating point ops (multiply &amp; add) and is performed $M<em>N</em>K$ times, so the number of FLOPs for this GEMM is $2MNK$.</p>
 <p>Let&rsquo;s measure its performance for various matrix sizes:
 
 
 
-<figure>
-
-<img src="img/plot-naive.png" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-naive.png" >
+
+
+  <img src="./img/plot-naive.png" alt=""  >
+</a>
+
+
+
+</figure>
+</p>
 <p>We barely reach 10% of peak performance! While we&rsquo;ll look into ways to make the computation faster, a recurring theme will be that it&rsquo;s not enough to just <em>compute</em> the data fast if we can&rsquo;t <em>get</em> the data fast. As memory becomes a bigger and bigger issue for larger matrices, the performance continues to gradually dip. The sharp drop you see towards the end? That represents the point when the matrices become too big to fit in the cache and the throughput suddenly drops &ndash; you can see the system choking.</p>
-
 <h2 id="caching">Caching</h2>
-
 <p>The RAM is a large but slow storage. CPU caches are orders of magnitude faster, but much smaller, so using them correctly is critical. But there is no explicit instruction that says &ldquo;load this data to cache&rdquo;. It&rsquo;s a process automatically managed by the CPU.</p>
-
 <p>Every time we fetch data from the main memory, the CPU automatically loads it and its neighboring memory into the cache, hoping to utilize locality of reference.</p>
 
 
 
 
-<figure>
 
-<img src="img/cache-line.png" width="70%" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/cache-line.png" >
+
+
+  <img src="./img/cache-line.png" alt="" width="70%" >
+</a>
+
 
 
 </figure>
@@ -876,15 +879,33 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-<figure>
-
-<img src="img/naive-traversal.svg" width="80%" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/naive-traversal.svg" >
+
+
+  <img src="./img/naive-traversal.svg" alt="" width="80%" >
+</a>
+
+
+
+</figure>
+</p>
 <p>Their storage is also row-major, so once we find <code>A[i, k]</code>, the next element in the row, <code>A[i, k+1]</code> is already cached. Cool. But see what happens for $B$ :</p>
-
 <ul>
 <li>the next element of the column isn&rsquo;t present in the cache &ndash; we get a cache miss and the CPU stalls while the data is fetched</li>
 <li>once fetched, the cache also gets filled with other elements in the same row of $B$. We won&rsquo;t actually use them, so they&rsquo;ll be evicted soon. A few iterations later when they&rsquo;re actually needed, we&rsquo;ll be working to fetch them again. We&rsquo;re <strong>polluting</strong> the cache with values we don&rsquo;t need.</li>
@@ -893,30 +914,63 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-<figure>
 
-<img src="img/cache-pollution.png" width="50%" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/cache-pollution.png" >
+
+
+  <img src="./img/cache-pollution.png" alt="" width="50%" >
+</a>
+
 
 
 </figure>
 
 <p>We need to rework our loops to exploit this caching ability instead. If data is being read, we might as well make use of it. This brings us to the first change we&rsquo;ll make: <strong>loop reordering</strong>.</p>
-
 <p>Let&rsquo;s reorder the loops from <code>i,j,k</code> to <code>i,k,j</code>:</p>
-
 <pre><code class="language-cpp">for i in 0..M:
     for k in 0..K:
         for j in 0..N:
 </code></pre>
-
 <p>Our answer is still correct because the order of multiplications/additions doesn&rsquo;t matter. The traversal order will now look like this</p>
 
 
 
 
-<figure>
 
-<img src="img/reordered.svg" width="80%" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/reordered.svg" >
+
+
+  <img src="./img/reordered.svg" alt="" width="80%" >
+</a>
+
 
 
 </figure>
@@ -926,21 +980,35 @@ C(x,y) += A(k, x) *= B(y, k);  // loop bounds, dims, etc. are taken care of auto
 
 
 
-<figure>
 
-<img src="img/plot-reorder.png" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-reorder.png" >
+
+
+  <img src="./img/plot-reorder.png" alt=""  >
+</a>
+
 
 
 </figure>
 
 <h2 id="tiling">Tiling</h2>
-
 <p>To further improve upon reordering, there&rsquo;s one more caching issue we need to consider.</p>
-
 <p>For each row of $A$, we were looping over the entirety of $B$. With each step over B, we&rsquo;ll load some of its new columns and evict some older ones from the cache. When we get to the next row of A, we start all over again from the first columns. We&rsquo;re repeatedly adding and removing the same data from the cache, or <strong>thrashing</strong> it.</p>
-
 <p>The thrashing wouldn&rsquo;t occur if all our data could fit in the cache. If only we were working with smaller matrices, they could happily live together without getting evicted repeatedly. Thankfully for us, we can break down matrix multiplication over submatrices. To compute a small $r\times c$ tile of $C$, we only need $r$ rows of $A$ and $c$ columns of $B$. Let&rsquo;s break $C$ into tiles of 6x16.</p>
-
 <pre><code class="language-cpp">C(x, y) += A(k, y) * B(x, k);
 
 C.update()
@@ -956,28 +1024,41 @@ for xo in 0..N/16:
                     C(...) = ...
 */
 </code></pre>
-
 <p>We&rsquo;ve broken the x,y dimensions into an outer <code>xo,yo</code> and inner <code>xi,yi</code>. We&rsquo;ll spend our efforts optimizing a <em>micro-kernel</em> for the smaller 6x16 block (marked by <code>xi,yi</code>), and run that micro-kernel over all the blocks (iterated by <code>xo,yo</code>).</p>
-
-<h2 id="vectorization-fma">Vectorization &amp; FMA</h2>
-
+<h2 id="vectorization--fma">Vectorization &amp; FMA</h2>
 <p>Most modern CPUs support <strong>SIMD</strong>, or <strong>S</strong>ingle <strong>I</strong>nstruction <strong>M</strong>ultiple <strong>D</strong>ata. As the name suggests, SIMD can be used to do the same operation/instruction (like add, multiply, etc.) on multiple values simultaneously, in the same CPU cycle. If we can run SIMD instructions on say 4 data points at a time, that&rsquo;s a 4x speedup straightaway.
 
 
 
-<figure>
-
-<img src="img/simd.png" width="75%" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/simd.png" >
+
+
+  <img src="./img/simd.png" alt="" width="75%" >
+</a>
+
+
+
+</figure>
+</p>
 <p>So when we calculated the peak speed of the processor, we <em>sort of</em> cheated and were instead referring to this vectorized performance. This is of great use for data like vectors, where we have to apply the same instruction to every vector element. But we still have to design our kernel to exploit this properly.</p>
-
 <p>The second &ldquo;hack&rdquo; we used while calculating the peak FLOPs was <strong>FMA</strong> &ndash; <strong>F</strong>used <strong>M</strong>ultiply-<strong>A</strong>dd. While multiplying and adding are counted as 2 separate floating-point operations, they&rsquo;re so common that dedicated hardware units are available that <em>fuse</em> the 2 and perform them as a single instruction. Using this is usually handled by the compiler.</p>
-
 <p>On Intel CPUs, we can use SIMD (called AVX &amp; SSE) for processing up to 8 floating-point numbers in a single instruction. Compiler optimizations will often be able to identify vectorization opportunities on their own, but we&rsquo;ll take things in our own hands just to be sure.</p>
-
 <pre><code class="language-cpp">C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -997,17 +1078,33 @@ for xo in 0..N/16:
 
 
 
-<figure>
 
-<img src="img/plot-vector.png" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-vector.png" >
+
+
+  <img src="./img/plot-vector.png" alt=""  >
+</a>
+
 
 
 </figure>
 
 <h2 id="threading">Threading</h2>
-
 <p>Up until now we&rsquo;ve only been using one CPU core. We have multiple cores available, and each core can physically execute multiple instructions at the same time. A program can divide itself into multiple threads, and each thread can run on a separate core.</p>
-
 <pre><code class="language-cpp">C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -1024,27 +1121,40 @@ for xo in 0..N/16 in steps of 16:
                     C(...) = ...
 */
 </code></pre>
-
 <p>You might notice that the performance actually drops for very small sizes, because with small workloads, the threads spend less time working and more time synchronizing with each other. There are a lot of other such issues with respect to threading that could warrant another deep dive on its own.</p>
 
 
 
 
-<figure>
 
-<img src="img/plot-parallel.png" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-parallel.png" >
+
+
+  <img src="./img/plot-parallel.png" alt=""  >
+</a>
+
 
 
 </figure>
 
 <h2 id="unrolling">Unrolling</h2>
-
 <p>Loops let us avoid the pain of writing the same line over and over again, while introducing a little extra work like checking for loop termination, updating the loop counters, pointer arithmetic, etc. If instead we manually write out the repeated loop statements and <em>unroll</em> the loop, we can reduce this overhead. For instance, instead of 8 iterations of 1 statement, we could run 2 iterations of 4 statements.</p>
-
 <p>I initially found it surprising that such fickle and seemingly insignificant overheads can actually matter. However, while these loop operations may be &ldquo;inexpensive&rdquo;, they&rsquo;re certainly not free.  The cost of 2-3 extra instructions for each iteration will add up quickly if you remember that the number of iterations here is in millions. The benefits do diminish progressively as the loop overhead becomes relatively smaller.</p>
-
 <p>Unrolling is another optimization that is almost entirely taken care of by compilers now, except in micro-kernels like ours where we prefer more control.</p>
-
 <pre><code class="language-cpp">C.update()
  .tile(x, y, xo, yo, xi, yi, 6, 16)
  .reorder(xi, yi, k, xo, yo)
@@ -1067,26 +1177,40 @@ for xo in 0..N/16:
             C(xi+8:xi+16, yi+5)
 */
 </code></pre>
-
 <p>We&rsquo;re now able to touch speeds up to 60 GFLOP/s.
 
 
 
-<figure>
-
-<img src="img/plot-unroll.png" />
 
 
-</figure></p>
 
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-unroll.png" >
+
+
+  <img src="./img/plot-unroll.png" alt=""  >
+</a>
+
+
+
+</figure>
+</p>
 <h1 id="putting-it-together">Putting It together</h1>
-
 <p>The above steps cover some of the most commonly-used transformations to speed up performance. They&rsquo;re usually combined in different ways to come up with more and more complex schedules to compute the same task.</p>
-
 <!-- I missed some final details on how even within the cache, we can try and fit data in multiple levels (L1, L2, L3 cache) which are progressively larger but slower. There is no explicit CPU instruction, even in assembly, that says "put this data in the cache". Instead, the kernel is designed so as to make this happen implicitly, with the knowledge of the CPU architecture. -->
-
 <p>Here&rsquo;s a schedule from Halide that&rsquo;s more carefully optimized.</p>
-
 <pre><code class="language-cpp">    matrix_mul(x, y) += A(k, y) * B(x, k);
     out(x, y) = matrix_mul(x, y);
 
@@ -1107,9 +1231,7 @@ for xo in 0..N/16:
         .unroll(y)
         .unroll(k, 2);
 </code></pre>
-
 <p>In summary, it does this:</p>
-
 <ul>
 <li>Split <code>out</code> into tiles of 32x24. Further split each tile into 8x24 sub-tiles</li>
 <li>Compute the 8x24 matmul in a temporary buffer (<code>matrix_mul</code>), with the similar reordering, vectorization, and unrolling</li>
@@ -1120,15 +1242,32 @@ for xo in 0..N/16:
 
 
 
-<figure>
 
-<img src="img/plot-halide.png" />
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/plot-halide.png" >
+
+
+  <img src="./img/plot-halide.png" alt=""  >
+</a>
+
 
 
 </figure>
 
 <p>Finally, we&rsquo;re able to touch speeds of over 120 GFLOPs &ndash; respectably close to the peak performance of 160 GFLOPs, and matching production-level libraries like OpenBLAS. With similar fine-tuned code for im2col, followed by gemm, the same convolution now runs in ~20ms.  If you&rsquo;re interested in going deeper into this, try experimenting with different schedules of your own &ndash; while as an engineer I had always heard statements about caching, performance, etc., seeing their true effect can be rewarding and fun.</p>
-
 <p>Note that this im2col+gemm method is a popular general-purpose methods in most deep learning libraries. However, specialization is key &ndash; for specific commonly-used sizes, different architectures (GPU), and different operation parameters (like dilation, grouping, etc.), these libraries might again have more specialized implementations utilizing similar tricks or assumptions specific to those cases. These micro-kernels are built after a highly iterative process with trial and error. Programmers often have only an intuition of what should/shouldn&rsquo;t work well and/or must think of explanations based on the results. Sounds like a perfect match for deep learning research, right?</p>
 
     </div>
@@ -1137,57 +1276,170 @@ for xo in 0..N/16:
 
 
 
+
+
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+  
+    
+    
     
       
+    
+    
+    
+    <div class="media author-card content-widget-hr">
+      
+        
+        <img class="avatar mr-3 avatar-circle" src="/author/manas-sahni/avatar_huc6bd752989a0222ed934401f96ccbbed_399140_270x270_fill_q90_lanczos_center.jpg" alt="Manas Sahni">
+      
 
-
-
-
-
-
-
-
-  
+      <div class="media-body">
+        <h5 class="card-title"><a href="/">Manas Sahni</a></h5>
+        <h6 class="card-subtitle">MS CS student</h6>
+        
+        <ul class="network-icon" aria-hidden="true">
   
     
-  
-  
-
-
-
-
-
-
-
-      
+    
+    
       
     
-
     
-
     
+    
+    
+    <li>
+      <a href="mailto:sahnimanas@gatech.edu" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://linkedin.com/in/sahnimanas" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/sahnimanas" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+      </div>
+    </div>
+  
+
+
+
+
+
+
+
 <section id="comments">
-  <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
+  
+    
+<div id="disqus_thread"></div>
+<script>
+  let disqus_config = function () {
     
     
     
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "sahnimanas-github-io" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
+  };
+  (function() {
+    if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+      document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+      return;
+    }
+    var d = document, s = d.createElement('script'); s.async = true;
+    s.src = 'https://' + "sahnimanas-github-io" + '.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+  
 </section>
+
+
+
+
+
+
+
+
+  
+  
+
+
 
 
 
@@ -1199,29 +1451,24 @@ for xo in 0..N/16:
     
     
     
-    <script src="/js/mathjax-config.js"></script>
-    
-
-    
-    
-    
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
 
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js" integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin="anonymous" title="mermaid"></script>
       
 
       
         
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js"></script>
         
       
 
-      
-      
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
-      
     
 
     
@@ -1229,13 +1476,12 @@ for xo in 0..N/16:
 
     
     
-    
-    <script id="dsq-count-scr" src="//sahnimanas-github-io.disqus.com/count.js" async></script>
+    <script>const code_highlighting = true;</script>
     
 
     
     
-    <script>hljs.initHighlightingOnLoad();</script>
+    <script>const isSiteThemeDark = false;</script>
     
 
     
@@ -1253,6 +1499,12 @@ for xo in 0..N/16:
 
     
     
+
+    
+    
+    <script id="dsq-count-scr" src="https://sahnimanas-github-io.disqus.com/count.js" async></script>
+    
+
     
     
     
@@ -1263,7 +1515,9 @@ for xo in 0..N/16:
     
     
     
-    <script src="/js/academic.min.80598a1dc7d6b3a6fc1a6321b4faaf74.js"></script>
+    
+    
+    <script src="/js/academic.min.cbb55fd8eafa574bce72dcb94f65cd2c.js"></script>
 
     
 
@@ -1272,6 +1526,7 @@ for xo in 0..N/16:
 
 
 
+  
   
   <div class="container">
     <footer class="site-footer">
@@ -1279,14 +1534,25 @@ for xo in 0..N/16:
 
   <p class="powered-by">
     
+  </p>
 
-    Powered by the
-    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
-    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    Published with
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic Website Builder</a>
+    
 
     
     <span class="float-right" aria-hidden="true">
-      <a href="#" id="back_to_top">
+      <a href="#" class="back-to-top">
         <span class="button_icon">
           <i class="fas fa-chevron-up fa-2x"></i>
         </span>
