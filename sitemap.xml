@@ -3,6 +3,10 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/resume/</loc>
+  </url>
+  
+  <url>
     <loc>/post/anatomy-of-a-high-performance-convolution/</loc>
     <lastmod>2019-08-26T21:57:19+05:30</lastmod>
   </url>
