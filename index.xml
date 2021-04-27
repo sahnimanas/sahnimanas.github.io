@@ -251,7 +251,7 @@
 &lt;h1 id=&#34;learn-more&#34;&gt;Learn more&lt;/h1&gt;
 &lt;p&gt;CompOFA improves the speed, cost, and usability of jointly training models for many deployment targets. By highlighting insights on model design and system deployment, we try to address an important problem for real-world usability of DNNs.&lt;/p&gt;
 &lt;p&gt;To know more, please check out our 
-&lt;a href=&#34;https://openreview.net/pdf?id=IgIk8RRT-Z&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;paper&lt;/a&gt; and 
+&lt;a href=&#34;https://arxiv.org/abs/2104.12642&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;paper&lt;/a&gt; and 
 &lt;a href=&#34;https://iclr.cc/media/PosterPDFs/ICLR%202021/2c3ddf4bf13852db711dd1901fb517fa.png&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;poster&lt;/a&gt; at ICLR 2021! Our code and pretrained models are also available on our 
 &lt;a href=&#34;https://github.com/gatech-sysml/compofa&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Github repository&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;citation&#34;&gt;Citation&lt;/h2&gt;
