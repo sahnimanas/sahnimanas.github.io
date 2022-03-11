@@ -787,7 +787,7 @@ $$</p>
 </ul>
 <p>Now the weights of a pre-trained network are constant, so we can convert &amp; store them in quantized form beforehand with their exact ranges known to us.</p>
 <p>The input to a layer, or equivalently the output of a preceding layer, are also quantized with their own separate parameters. But wait – to quantize a set of numbers don&rsquo;t we need to know their range (and thus their actual values) in float first? Then what&rsquo;s the point of quantized computation? The answer to this lies behind the fact that a layer&rsquo;s output generally lies in a bounded range for most inputs, with only a few outliers. While we ideally would want to know the exact range of values to quantize them accurately, results of unknown inputs can still be expected to be in similar bounds. Luckily, we are already computing the output in float during another stage – training. Thus, we can find the average output range on a large number of inputs during training and use this as a proxy to the output quantization parameters. When running on an actual unseen input, an outlier will get squashed if our range is too small, or get rounded if the range is too wide. But hopefully there will only be a few of these.</p>
-<p>What&rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&rsquo;ll also have to change some of the layers&rsquo; logic. For example, ReLU should now compare values against <code>Quantized(0)</code> instead of <code>0.f</code></p>
+<p>What&rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&rsquo;ll also have to change some of the layers' logic. For example, ReLU should now compare values against <code>Quantized(0)</code> instead of <code>0.f</code></p>
 <p>The below figure puts it all together.</p>
 <p><img src="/post/quantization-in-tflite/layer.png" alt="layer"></p>
 <p>We can even get a bit clever with the re-quantization in (3). TF-Lite uses gemmlowp for matrix multiplication, which stores results of <code>uint8</code> matrix products in <code>int32</code>. Then, we can add the biases quantized in higher precision as <code>int32</code> itself. Finally, in going from 32-bit to 8-bit, (4) would expect the range of this layer&rsquo;s output. Instead, we can specify the quantization range expected after the next activation layer, such as ReLU. This will implicitly compute activations and also help us use the full quantization range in this layer.</p>
@@ -1027,7 +1027,7 @@ conventional neural network to the quantized form, which is where TensorFlow&rsq
     
     
     <li>
-      <a href="mailto:sahnimanas@gatech.edu" >
+      <a href="mailto:sahnimanas@gmail.com" >
         <i class="fas fa-envelope"></i>
       </a>
     </li>
@@ -1209,7 +1209,7 @@ conventional neural network to the quantized form, which is where TensorFlow&rsq
     
     
     
-    <script src="/js/academic.min.cbb55fd8eafa574bce72dcb94f65cd2c.js"></script>
+    <script src="/js/academic.min.f30a8b5a880e824aab9653942c89109b.js"></script>
 
     
 

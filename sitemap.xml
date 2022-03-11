@@ -1,114 +1,68 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>/resume/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/alexey-tumanov-systems-for-ai-lab-sail/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/alind-khare/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/authors/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/compofa/blog/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/post/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/georgia-institute-of-technology/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/manas-sahni/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/shreya-varshini/</loc>
     <lastmod>2021-04-28T20:38:42-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/compofa/</loc>
     <lastmod>2021-04-24T15:55:22-04:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/post/anatomy-of-a-high-performance-convolution/</loc>
     <lastmod>2019-08-26T21:57:19+05:30</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/tag/inference/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/post/quantization-in-tflite/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/tag/performance/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/tag/quantization/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/tags/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/tag/tf-lite/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/author/manas-sahni/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/publication_types/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/publication/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>/talk/</loc>
   </url>
-  
 </urlset>

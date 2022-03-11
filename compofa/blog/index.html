@@ -907,42 +907,41 @@
 <p>Inspired by this, CompOFA uses a simple but powerful heuristic – <strong>choose models that grow depth and width together</strong>. This makes our search space much more tractable, but still just as efficient and diverse for actual use.</p>
 <p>In our paper, we show that we can train this model family in <strong>half the time</strong> and all at once, without a slow phased approach. After training, we can search for models <strong>216x</strong> faster, and without the time and effort to build special estimators.</p>
 <center>
-<table>
-<thead>
-<tr>
-<th><strong>Metric</strong></th>
-<th align="right"><strong>OFA</strong></th>
-<th align="right"><strong>CompOFA</strong></th>
-<th align="right"><strong>Savings</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Train Time</strong> (GPU hrs)</td>
-<td align="right">978.3</td>
-<td align="right">493.5</td>
-<td align="right"><strong>2x</strong></td>
-</tr>
-<tr>
-<td><strong>Train Cost</strong> (USD)</td>
-<td align="right">$2.4k</td>
-<td align="right">$1.2k</td>
-<td align="right"><strong>2x</strong></td>
-</tr>
-<tr>
-<td><strong>CO2 emissions</strong> (lbs)</td>
-<td align="right">277</td>
-<td align="right">128</td>
-<td align="right"><strong>2x</strong></td>
-</tr>
-<tr>
-<td><strong>Search Time</strong></td>
-<td align="right">4.5 hours</td>
-<td align="right">75 seconds</td>
-<td align="right"><strong>216x</strong></td>
-</tr>
-</tbody>
-</table>
+<!-- | **Metric**               |   **OFA** | **CompOFA** |  **Savings** |
+|--------------------------|----------:|------------:|-------------:|
+| **Train Time** (GPU hrs) |     978.3 |       493.5 |       **2x** |
+| **Train Cost** (USD)     |     $2.4k |       $1.2k |       **2x** |
+| **CO2 emissions** (lbs)  |       277 |         128 |       **2x** |
+| **Search Time**          | 4.5 hours |  75 seconds |     **216x** | -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure >
+
+
+  <a data-fancybox="" href="./img/table.png" >
+
+
+  <img src="./img/table.png" alt="" width="40%" >
+</a>
+
+
+
+</figure>
+
 </center>
 <p>Despite these savings, CompOFA does not compromise on its original goal. It’s able to extract networks for multiple latency targets on distinct hardware types, and match the existing SOTA in both optimality and range of its models.</p>
 
@@ -1213,7 +1212,7 @@
     
     
     
-    <script src="/js/academic.min.cbb55fd8eafa574bce72dcb94f65cd2c.js"></script>
+    <script src="/js/academic.min.f30a8b5a880e824aab9653942c89109b.js"></script>
 
     
 

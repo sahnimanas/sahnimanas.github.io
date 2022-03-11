@@ -175,42 +175,41 @@
 &lt;p&gt;Inspired by this, CompOFA uses a simple but powerful heuristic – &lt;strong&gt;choose models that grow depth and width together&lt;/strong&gt;. This makes our search space much more tractable, but still just as efficient and diverse for actual use.&lt;/p&gt;
 &lt;p&gt;In our paper, we show that we can train this model family in &lt;strong&gt;half the time&lt;/strong&gt; and all at once, without a slow phased approach. After training, we can search for models &lt;strong&gt;216x&lt;/strong&gt; faster, and without the time and effort to build special estimators.&lt;/p&gt;
 &lt;center&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;&lt;strong&gt;Metric&lt;/strong&gt;&lt;/th&gt;
-&lt;th align=&#34;right&#34;&gt;&lt;strong&gt;OFA&lt;/strong&gt;&lt;/th&gt;
-&lt;th align=&#34;right&#34;&gt;&lt;strong&gt;CompOFA&lt;/strong&gt;&lt;/th&gt;
-&lt;th align=&#34;right&#34;&gt;&lt;strong&gt;Savings&lt;/strong&gt;&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Train Time&lt;/strong&gt; (GPU hrs)&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;978.3&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;493.5&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Train Cost&lt;/strong&gt; (USD)&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;$2.4k&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;$1.2k&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;CO2 emissions&lt;/strong&gt; (lbs)&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;277&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;128&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Search Time&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;4.5 hours&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;75 seconds&lt;/td&gt;
-&lt;td align=&#34;right&#34;&gt;&lt;strong&gt;216x&lt;/strong&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+&lt;!-- | **Metric**               |   **OFA** | **CompOFA** |  **Savings** |
+|--------------------------|----------:|------------:|-------------:|
+| **Train Time** (GPU hrs) |     978.3 |       493.5 |       **2x** |
+| **Train Cost** (USD)     |     $2.4k |       $1.2k |       **2x** |
+| **CO2 emissions** (lbs)  |       277 |         128 |       **2x** |
+| **Search Time**          | 4.5 hours |  75 seconds |     **216x** | --&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure &gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/table.png&#34; &gt;
+
+
+  &lt;img src=&#34;./img/table.png&#34; alt=&#34;&#34; width=&#34;40%&#34; &gt;
+&lt;/a&gt;
+
+
+
+&lt;/figure&gt;
+
 &lt;/center&gt;
 &lt;p&gt;Despite these savings, CompOFA does not compromise on its original goal. It’s able to extract networks for multiple latency targets on distinct hardware types, and match the existing SOTA in both optimality and range of its models.&lt;/p&gt;
 
@@ -274,39 +273,7 @@
       <link>/compofa/</link>
       <pubDate>Sat, 24 Apr 2021 15:55:22 -0400</pubDate>
       <guid>/compofa/</guid>
-      <description>&lt;p&gt;The emergence of CNNs in mainstream deployment has necessitated methods to design and train efficient architectures tailored to maximize the accuracy under diverse hardware &amp;amp; latency constraints.&lt;/p&gt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure &gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/model-family.png&#34; &gt;
-
-
-  &lt;img src=&#34;./img/model-family.png&#34; alt=&#34;&#34; width=&#34;20%&#34; &gt;
-&lt;/a&gt;
-
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Designing and training DNN architectures for each deployment target is not feasible. Each deployment costs training time, compute dollars, system expertise, ML expertise, CO2 emissions.&lt;/p&gt;
-&lt;p&gt;In &lt;em&gt;CompOFA&lt;/em&gt;, we propose a cost-effective and faster technique to build model families that support multiple deployment platforms. Using insights from model design and system deployment, we build upon the current best methods that take 40-50 GPU days of computation and make their training and searching processes &lt;strong&gt;faster by 2x and 200x&lt;/strong&gt;, respectively – all while building a family of equally efficient and diverse models!&lt;/p&gt;
-
+      <description>
 
 
 
@@ -341,6 +308,9 @@
 
 &lt;/figure&gt;
 
+&lt;p&gt;The emergence of CNNs in mainstream deployment has necessitated methods to design and train efficient architectures tailored to maximize the accuracy under diverse hardware &amp;amp; latency constraints.&lt;/p&gt;
+&lt;p&gt;Designing and training DNN architectures for each deployment target is not feasible. Each deployment costs training time, compute dollars, system expertise, ML expertise, CO2 emissions.&lt;/p&gt;
+&lt;p&gt;In &lt;em&gt;CompOFA&lt;/em&gt;, we propose a cost-effective and faster technique to build model families that support multiple deployment platforms. Using insights from model design and system deployment, we build upon the current best methods that take 40-50 GPU days of computation and make their training and searching processes &lt;strong&gt;faster by 2x and 200x&lt;/strong&gt;, respectively – all while building a family of equally efficient and diverse models!&lt;/p&gt;
 &lt;h3 id=&#34;compofa-matches-efficiency-and-diversity-of-sota-methods&#34;&gt;CompOFA matches efficiency and diversity of SOTA methods&amp;hellip;&lt;/h3&gt;
 
 
@@ -358,10 +328,10 @@
 
 
 
-&lt;figure id=&#34;figure-compofa-generates-efficient-model-families-for-diverse-hardwares----from-mobile-phones-to-gpus&#34;&gt;
+&lt;figure id=&#34;figure-efficient-model-families-for-diverse-hardwares----from-mobile-phones-to-gpus&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/pareto-results.png&#34; data-caption=&#34;CompOFA generates efficient model families for diverse hardwares &amp;amp;ndash; from mobile phones to GPUs&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/pareto-results.png&#34; data-caption=&#34;Efficient model families for diverse hardwares &amp;amp;ndash; from mobile phones to GPUs&#34;&gt;
 
 
   &lt;img src=&#34;./img/pareto-results.png&#34; alt=&#34;&#34;  &gt;
@@ -371,7 +341,7 @@
   
   
   &lt;figcaption&gt;
-    CompOFA generates efficient model families for diverse hardwares &amp;ndash; from mobile phones to GPUs
+    Efficient model families for diverse hardwares &amp;ndash; from mobile phones to GPUs
   &lt;/figcaption&gt;
 
 
@@ -397,10 +367,10 @@
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/table.svg&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/table.png&#34; &gt;
 
 
-  &lt;img src=&#34;./img/table.svg&#34; alt=&#34;&#34; width=&#34;40%&#34; &gt;
+  &lt;img src=&#34;./img/table.png&#34; alt=&#34;&#34; width=&#34;40%&#34; &gt;
 &lt;/a&gt;
 
 
@@ -1263,7 +1233,7 @@ $$&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;Now the weights of a pre-trained network are constant, so we can convert &amp;amp; store them in quantized form beforehand with their exact ranges known to us.&lt;/p&gt;
 &lt;p&gt;The input to a layer, or equivalently the output of a preceding layer, are also quantized with their own separate parameters. But wait – to quantize a set of numbers don&amp;rsquo;t we need to know their range (and thus their actual values) in float first? Then what&amp;rsquo;s the point of quantized computation? The answer to this lies behind the fact that a layer&amp;rsquo;s output generally lies in a bounded range for most inputs, with only a few outliers. While we ideally would want to know the exact range of values to quantize them accurately, results of unknown inputs can still be expected to be in similar bounds. Luckily, we are already computing the output in float during another stage – training. Thus, we can find the average output range on a large number of inputs during training and use this as a proxy to the output quantization parameters. When running on an actual unseen input, an outlier will get squashed if our range is too small, or get rounded if the range is too wide. But hopefully there will only be a few of these.&lt;/p&gt;
-&lt;p&gt;What&amp;rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&amp;rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&amp;rsquo;ll also have to change some of the layers&amp;rsquo; logic. For example, ReLU should now compare values against &lt;code&gt;Quantized(0)&lt;/code&gt; instead of &lt;code&gt;0.f&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;What&amp;rsquo;s left is the main function that computes the output of the layer. Changing this to a quantized version requires more than simply changing float to int everywhere, as the results of our integer computations can overflow. So, we&amp;rsquo;ll have to store results in larger integers (say, int32) and then requantize it to the 8-bit output. This is not a concern in conventional full-precision implementations, where all variables are in float and the hardware handles all the nitty-gritties of floating-point arithmetic. Additionally, we&amp;rsquo;ll also have to change some of the layers&#39; logic. For example, ReLU should now compare values against &lt;code&gt;Quantized(0)&lt;/code&gt; instead of &lt;code&gt;0.f&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;The below figure puts it all together.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;/post/quantization-in-tflite/layer.png&#34; alt=&#34;layer&#34;&gt;&lt;/p&gt;
 &lt;p&gt;We can even get a bit clever with the re-quantization in (3). TF-Lite uses gemmlowp for matrix multiplication, which stores results of &lt;code&gt;uint8&lt;/code&gt; matrix products in &lt;code&gt;int32&lt;/code&gt;. Then, we can add the biases quantized in higher precision as &lt;code&gt;int32&lt;/code&gt; itself. Finally, in going from 32-bit to 8-bit, (4) would expect the range of this layer&amp;rsquo;s output. Instead, we can specify the quantization range expected after the next activation layer, such as ReLU. This will implicitly compute activations and also help us use the full quantization range in this layer.&lt;/p&gt;
