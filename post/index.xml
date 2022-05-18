@@ -175,41 +175,42 @@
 &lt;p&gt;Inspired by this, CompOFA uses a simple but powerful heuristic – &lt;strong&gt;choose models that grow depth and width together&lt;/strong&gt;. This makes our search space much more tractable, but still just as efficient and diverse for actual use.&lt;/p&gt;
 &lt;p&gt;In our paper, we show that we can train this model family in &lt;strong&gt;half the time&lt;/strong&gt; and all at once, without a slow phased approach. After training, we can search for models &lt;strong&gt;216x&lt;/strong&gt; faster, and without the time and effort to build special estimators.&lt;/p&gt;
 &lt;center&gt;
-&lt;!-- | **Metric**               |   **OFA** | **CompOFA** |  **Savings** |
-|--------------------------|----------:|------------:|-------------:|
-| **Train Time** (GPU hrs) |     978.3 |       493.5 |       **2x** |
-| **Train Cost** (USD)     |     $2.4k |       $1.2k |       **2x** |
-| **CO2 emissions** (lbs)  |       277 |         128 |       **2x** |
-| **Search Time**          | 4.5 hours |  75 seconds |     **216x** | --&gt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure &gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./img/table.png&#34; &gt;
-
-
-  &lt;img src=&#34;./img/table.png&#34; alt=&#34;&#34; width=&#34;40%&#34; &gt;
-&lt;/a&gt;
-
-
-
-&lt;/figure&gt;
-
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;strong&gt;Metric&lt;/strong&gt;&lt;/th&gt;
+&lt;th style=&#34;text-align:right&#34;&gt;&lt;strong&gt;OFA&lt;/strong&gt;&lt;/th&gt;
+&lt;th style=&#34;text-align:right&#34;&gt;&lt;strong&gt;CompOFA&lt;/strong&gt;&lt;/th&gt;
+&lt;th style=&#34;text-align:right&#34;&gt;&lt;strong&gt;Savings&lt;/strong&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Train Time&lt;/strong&gt; (GPU hrs)&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;978.3&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;493.5&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Train Cost&lt;/strong&gt; (USD)&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;$2.4k&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;$1.2k&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;CO2 emissions&lt;/strong&gt; (lbs)&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;277&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;128&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;&lt;strong&gt;2x&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Search Time&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;4.5 hours&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;75 seconds&lt;/td&gt;
+&lt;td style=&#34;text-align:right&#34;&gt;&lt;strong&gt;216x&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 &lt;/center&gt;
 &lt;p&gt;Despite these savings, CompOFA does not compromise on its original goal. It’s able to extract networks for multiple latency targets on distinct hardware types, and match the existing SOTA in both optimality and range of its models.&lt;/p&gt;
 

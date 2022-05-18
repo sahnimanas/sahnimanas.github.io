@@ -292,8 +292,8 @@
   <meta property="og:site_name" content="Manas Sahni">
   <meta property="og:url" content="/compofa/blog/">
   <meta property="og:title" content="CompOFA: Compound Once-For-All Networks for Faster Multi-Platform Deployment | Manas Sahni">
-  <meta property="og:description" content="CompOFA improves the speed, cost, and usability of jointly training models for many deployment targets. By highlighting insights on model design and system deployment, we try to address an important problem for real-world usability of DNNs."><meta property="og:image" content="/compofa/blog/featured.png">
-  <meta property="twitter:image" content="/compofa/blog/featured.png"><meta property="og:locale" content="en-us">
+  <meta property="og:description" content="CompOFA improves the speed, cost, and usability of jointly training models for many deployment targets. By highlighting insights on model design and system deployment, we try to address an important problem for real-world usability of DNNs."><meta property="og:image" content="/compofa/blog/featured.bak.png">
+  <meta property="twitter:image" content="/compofa/blog/featured.bak.png"><meta property="og:locale" content="en-us">
   
     
       <meta property="article:published_time" content="2021-04-28T20:38:42-04:00">
@@ -327,7 +327,7 @@
   "headline": "CompOFA: Compound Once-For-All Networks for Faster Multi-Platform Deployment",
   
   "image": [
-    "/compofa/blog/featured.png"
+    "/compofa/blog/featured.bak.png"
   ],
   
   "datePublished": "2021-04-28T20:38:42-04:00",
@@ -739,7 +739,7 @@
 
 <div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 234px;">
   <div style="position: relative">
-    <img src="/compofa/blog/featured_hu3691040b008fd11863745d54b0192e93_24323_720x0_resize_lanczos_2.png" alt="" class="featured-image">
+    <img src="/compofa/blog/featured.bak_hu3691040b008fd11863745d54b0192e93_24323_720x0_resize_lanczos_2.png" alt="" class="featured-image">
     
   </div>
 </div>
@@ -907,41 +907,42 @@
 <p>Inspired by this, CompOFA uses a simple but powerful heuristic – <strong>choose models that grow depth and width together</strong>. This makes our search space much more tractable, but still just as efficient and diverse for actual use.</p>
 <p>In our paper, we show that we can train this model family in <strong>half the time</strong> and all at once, without a slow phased approach. After training, we can search for models <strong>216x</strong> faster, and without the time and effort to build special estimators.</p>
 <center>
-<!-- | **Metric**               |   **OFA** | **CompOFA** |  **Savings** |
-|--------------------------|----------:|------------:|-------------:|
-| **Train Time** (GPU hrs) |     978.3 |       493.5 |       **2x** |
-| **Train Cost** (USD)     |     $2.4k |       $1.2k |       **2x** |
-| **CO2 emissions** (lbs)  |       277 |         128 |       **2x** |
-| **Search Time**          | 4.5 hours |  75 seconds |     **216x** | -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<figure >
-
-
-  <a data-fancybox="" href="./img/table.png" >
-
-
-  <img src="./img/table.png" alt="" width="40%" >
-</a>
-
-
-
-</figure>
-
+<table>
+<thead>
+<tr>
+<th><strong>Metric</strong></th>
+<th style="text-align:right"><strong>OFA</strong></th>
+<th style="text-align:right"><strong>CompOFA</strong></th>
+<th style="text-align:right"><strong>Savings</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Train Time</strong> (GPU hrs)</td>
+<td style="text-align:right">978.3</td>
+<td style="text-align:right">493.5</td>
+<td style="text-align:right"><strong>2x</strong></td>
+</tr>
+<tr>
+<td><strong>Train Cost</strong> (USD)</td>
+<td style="text-align:right">$2.4k</td>
+<td style="text-align:right">$1.2k</td>
+<td style="text-align:right"><strong>2x</strong></td>
+</tr>
+<tr>
+<td><strong>CO2 emissions</strong> (lbs)</td>
+<td style="text-align:right">277</td>
+<td style="text-align:right">128</td>
+<td style="text-align:right"><strong>2x</strong></td>
+</tr>
+<tr>
+<td><strong>Search Time</strong></td>
+<td style="text-align:right">4.5 hours</td>
+<td style="text-align:right">75 seconds</td>
+<td style="text-align:right"><strong>216x</strong></td>
+</tr>
+</tbody>
+</table>
 </center>
 <p>Despite these savings, CompOFA does not compromise on its original goal. It’s able to extract networks for multiple latency targets on distinct hardware types, and match the existing SOTA in both optimality and range of its models.</p>
 
