@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sahnimanas.github.io/sitemap.xml
